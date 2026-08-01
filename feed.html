@@ -1,0 +1,395 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Reading Room — Adversaria</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,400;0,600;1,400&family=Source+Serif+4:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="supabase-client.js"></script>
+</head>
+<body data-page-id="feed" data-page-title="Reading Room — Adversaria">
+
+<header class="site-header">
+  <div class="shell">
+    <a class="wordmark" href="index.html">The <span>Adversaria</span></a>
+    <nav class="site-nav">
+      <a href="index.html">Archive</a>
+      <a href="feed.html" class="is-active">Reading Room</a>
+      <a href="authors.html">Authors</a>
+    </nav>
+    <button class="menu-toggle-btn" id="menuToggleBtn">&#9776;</button>
+    <a class="icon-btn" href="messages.html" title="Messages" aria-label="Messages" id="messagesNavLink" style="display: none; margin-right: 8px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 2 11 13"/><path d="M22 2 15 22l-4-9-9-4z"/></svg><span class="icon-label">Messages</span></a>
+    <span id="authStatus" style="color: var(--paper-dim); font-size: 0.85rem;"></span>
+  </div>
+</header>
+<div class="side-menu-overlay" id="sideMenuOverlay"></div>
+<div class="side-menu" id="sideMenu">
+  <button class="side-menu-close" id="sideMenuClose">&times;</button>
+  <div style="clear: both; padding-top: 20px;">
+    <a href="index.html">Archive</a>
+    <a href="feed.html">Reading Room</a>
+    <a href="authors.html">Authors</a>
+    <a href="write.html">Write</a>
+    <a href="edit-profile.html">Edit Profile</a>
+    <a href="account.html">Account</a>
+    <a href="saved.html">Saved</a>
+    <a href="index.html#correspondence">Correspondence</a>
+    <a href="index.html#about">About the Keeper</a>
+  </div>
+</div>
+
+<main class="shell" style="max-width: 720px; margin: 60px auto; padding: 0 20px;">
+  <h1 style="font-family: var(--display); font-style: italic; color: var(--paper); font-size: 1.8rem;">The Reading Room</h1>
+  <input id="feedSearch" type="text" placeholder="Search the Reading Room..." style="width: 100%; padding: 10px; margin-top: 16px; background: var(--ink-raised); border: 1px solid var(--ink-line); color: var(--paper); border-radius: 4px;">
+  <div style="margin-top: 12px;">
+    <button id="sortNewest" style="padding: 6px 14px; background: var(--brass); border: none; color: var(--ink); border-radius: 4px; cursor: pointer; margin-right: 8px;">Newest</button>
+    <button id="sortOldest" style="padding: 6px 14px; background: none; border: 1px solid var(--brass); color: var(--brass); border-radius: 4px; cursor: pointer;">Oldest</button>
+  </div>
+  <div id="postsList" style="margin-top: 30px;"></div>
+</main>
+
+<script src="reader.js"></script>
+<script>
+  var currentUser = null;
+
+  function escapeHtml(s) {
+    var d = document.createElement('div');
+    d.textContent = s;
+    return d.innerHTML;
+  }
+
+  function getVideoEmbedUrl(url) {
+    if (!url) { return null; }
+    var youtubeMatch = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([a-zA-Z0-9_-]{11})/);
+    if (youtubeMatch) {
+      return 'https://www.youtube.com/embed/' + youtubeMatch[1];
+    }
+    var vimeoMatch = url.match(/vimeo\.com\/(?:video\/)?(\d+)/);
+    if (vimeoMatch) {
+      return 'https://player.vimeo.com/video/' + vimeoMatch[1];
+    }
+    return null;
+  }
+
+  function buildVideoHtml(embedUrl, title) {
+    var out = '<div style="border-radius: 6px; overflow: hidden; margin-bottom: 12px; background: #000;">';
+    out += '<iframe src="' + embedUrl + '" style="width: 100%; aspect-ratio: 16 / 9; border: none; display: block;" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>';
+    out += '</div>';
+    out += '<h2 style="font-family: var(--display); color: var(--paper); font-size: 1.3rem;">' + escapeHtml(title) + '</h2>';
+    return out;
+  }
+
+ function buildGalleryHtml(p) {
+  var images = [];
+  if (p.image_urls && p.image_urls.length > 0) {
+    images = p.image_urls;
+  } else if (p.image_url) {
+    images = [p.image_url];
+  }
+  if (images.length === 0) { return ''; }
+
+  var out = '<div class="postGallery" data-post-id="' + p.id + '" style="position: relative; border-radius: 6px; overflow: hidden; margin-bottom: 12px; background: var(--ink-raised);">';
+  out += '<div class="galleryTrack" style="display: flex; overflow-x: auto; scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch;">';
+  for (var i = 0; i < images.length; i++) {
+    out += '<img src="' + escapeHtml(images[i]) + '" style="flex: none; width: 100%; scroll-snap-align: start; display: block; aspect-ratio: 4 / 3; object-fit: cover;">';
+  }
+  out += '</div>';
+  if (images.length > 1) {
+    out += '<button class="galleryPrev" data-post-id="' + p.id + '" aria-label="Previous image" style="position: absolute; left: 8px; top: 50%; transform: translateY(-50%); width: 32px; height: 32px; border-radius: 50%; background: rgba(0,0,0,0.5); color: white; border: none; cursor: pointer; font-size: 1.1rem; line-height: 1;">&#8249;</button>';
+    out += '<button class="galleryNext" data-post-id="' + p.id + '" aria-label="Next image" style="position: absolute; right: 8px; top: 50%; transform: translateY(-50%); width: 32px; height: 32px; border-radius: 50%; background: rgba(0,0,0,0.5); color: white; border: none; cursor: pointer; font-size: 1.1rem; line-height: 1;">&#8250;</button>';
+    out += '<div class="galleryDots" data-post-id="' + p.id + '" style="position: absolute; bottom: 46px; left: 50%; transform: translateX(-50%); display: flex; gap: 6px;">';
+    for (var j = 0; j < images.length; j++) {
+      out += '<span class="galleryDot" style="width: 6px; height: 6px; border-radius: 50%; background: rgba(255,255,255,' + (j === 0 ? '0.9' : '0.4') + ');"></span>';
+    }
+    out += '</div>';
+  }
+  out += '<div style="position: absolute; bottom: 0; left: 0; right: 0; padding: 16px; background: linear-gradient(transparent, rgba(0,0,0,0.8)); color: white; pointer-events: none;">';
+  out += '<h2 style="font-family: var(--display); font-size: 1.3rem; margin: 0;">' + escapeHtml(p.title) + '</h2>';
+  out += '</div></div>';
+  return out;
+}
+
+ function buildArticleHtml(p) {
+  var out = '';
+  out += '<article style="border-bottom: 1px solid var(--ink-line); padding: 20px 0;" data-post-id="' + p.id + '">';
+  var videoEmbedUrl = getVideoEmbedUrl(p.video_url);
+  if (videoEmbedUrl) {
+    out += buildVideoHtml(videoEmbedUrl, p.title);
+  } else {
+    var galleryHtml = buildGalleryHtml(p);
+    if (galleryHtml) {
+      out += galleryHtml;
+    } else {
+      out += '<h2 style="font-family: var(--display); color: var(--paper); font-size: 1.3rem;">' + escapeHtml(p.title) + '</h2>';
+    }
+  }
+  out += '<a href="profile.html?username=' + encodeURIComponent(p.author_username) + '" style="color: var(--brass); font-size: 0.85rem;">by ' + escapeHtml(p.author_username) + '</a>';
+  out += '<p style="color: var(--paper-dim); margin-top: 10px; white-space: pre-wrap;">' + escapeHtml(p.content) + '</p>';
+  out += '<div style="margin-top: 12px;">';
+  out += '<button class="likeBtn" data-post-id="' + p.id + '" style="background: none; border: 1px solid var(--brass); color: var(--brass); padding: 4px 10px; border-radius: 4px; cursor: pointer; margin-right: 8px;">&#9825; <span class="likeCount">0</span></button>';
+  out += '<button class="saveBtn" data-post-id="' + p.id + '" style="background: none; border: 1px solid var(--brass); color: var(--brass); padding: 4px 10px; border-radius: 4px; cursor: pointer; margin-right: 8px;">Save</button>';
+  out += '<button class="toggleCommentsBtn" data-post-id="' + p.id + '" style="background: none; border: 1px solid var(--ink-line); color: var(--paper-dim); padding: 4px 10px; border-radius: 4px; cursor: pointer;">Comments</button>';
+  out += '</div>';
+  out += '<div class="commentsSection" data-post-id="' + p.id + '" style="display: none; margin-top: 12px;">';
+  out += '<div class="commentsList" data-post-id="' + p.id + '"></div>';
+  out += '<input type="text" class="commentInput" data-post-id="' + p.id + '" placeholder="Write a comment..." style="width: 100%; padding: 8px; margin-top: 8px; background: var(--ink-raised); border: 1px solid var(--ink-line); color: var(--paper); border-radius: 4px; box-sizing: border-box;">';
+  out += '</div>';
+  out += '</article>';
+  return out;
+}
+
+  window.currentAscending = false;
+
+  async function loadPosts() {
+    var list = document.getElementById('postsList');
+    var result = await sb.from('posts').select('*').order('created_at', { ascending: window.currentAscending });
+    var posts = result.data;
+    var error = result.error;
+
+    if (error) {
+      list.innerHTML = '<p style="color: var(--paper-dim);">Could not load posts: ' + error.message + '</p>';
+      return;
+    }
+    if (!posts) {
+      list.innerHTML = '<p style="color: var(--paper-dim);">Nothing here yet.</p>';
+      return;
+    }
+    if (posts.length === 0) {
+      list.innerHTML = '<p style="color: var(--paper-dim);">Nothing here yet.</p>';
+      return;
+    }
+    var html = '';
+    for (var i = 0; i < posts.length; i++) {
+      html += buildArticleHtml(posts[i]);
+    }
+    list.innerHTML = html;
+    wireUpPostInteractions();
+  }
+
+  document.getElementById('feedSearch').addEventListener('input', function () {
+    var query = this.value.toLowerCase();
+    var items = document.querySelectorAll('#postsList article');
+    for (var i = 0; i < items.length; i++) {
+      var text = items[i].textContent.toLowerCase();
+      if (text.indexOf(query) === -1) {
+        items[i].style.display = 'none';
+      } else {
+        items[i].style.display = 'block';
+      }
+    }
+  });
+
+  async function refreshLikeCount(postId, btnEl) {
+    var result = await sb.from('likes').select('id').eq('post_id', postId);
+    var count = 0;
+    if (result.data) { count = result.data.length; }
+    var span = btnEl.querySelector('.likeCount');
+    if (span) { span.textContent = count; }
+  }
+
+  async function toggleLike(postId, btnEl, userId) {
+    var existing = await sb.from('likes').select('id').eq('post_id', postId).eq('user_id', userId);
+    if (existing.data && existing.data.length > 0) {
+      await sb.from('likes').delete().eq('post_id', postId).eq('user_id', userId);
+    } else {
+      await sb.from('likes').insert({ post_id: postId, user_id: userId });
+    }
+    refreshLikeCount(postId, btnEl);
+  }
+
+  async function toggleSave(postId, btnEl, userId) {
+    var existing = await sb.from('saves').select('id').eq('post_id', postId).eq('user_id', userId);
+    if (existing.data && existing.data.length > 0) {
+      await sb.from('saves').delete().eq('post_id', postId).eq('user_id', userId);
+      btnEl.textContent = 'Save';
+    } else {
+      await sb.from('saves').insert({ post_id: postId, user_id: userId });
+      btnEl.textContent = 'Saved';
+    }
+  }
+
+  async function loadComments(postId, listEl) {
+    var result = await sb.from('comments').select('*').eq('post_id', postId).order('created_at', { ascending: true });
+    var comments = result.data;
+    if (!comments) { comments = []; }
+    var html = '';
+    for (var i = 0; i < comments.length; i++) {
+      html += '<p style="color: var(--paper-dim); font-size: 0.85rem; margin-top: 6px;"><strong style="color: var(--brass);">' + escapeHtml(comments[i].author_username) + '</strong>: ' + escapeHtml(comments[i].content) + '</p>';
+    }
+    listEl.innerHTML = html;
+  }
+
+  function initGalleries() {
+    var galleries = document.querySelectorAll('.postGallery');
+    for (var g = 0; g < galleries.length; g++) {
+      wireOneGallery(galleries[g]);
+    }
+  }
+
+  function wireOneGallery(gallery) {
+    var track = gallery.querySelector('.galleryTrack');
+    var dots = gallery.querySelectorAll('.galleryDot');
+    var prevBtn = gallery.querySelector('.galleryPrev');
+    var nextBtn = gallery.querySelector('.galleryNext');
+
+    function updateDots() {
+      if (dots.length === 0) { return; }
+      var index = Math.round(track.scrollLeft / track.clientWidth);
+      for (var i = 0; i < dots.length; i++) {
+        dots[i].style.background = (i === index) ? 'rgba(255,255,255,0.9)' : 'rgba(255,255,255,0.4)';
+      }
+    }
+
+    track.addEventListener('scroll', updateDots);
+
+    if (prevBtn) {
+      prevBtn.addEventListener('click', function (e) {
+        e.stopPropagation();
+        track.scrollBy({ left: -track.clientWidth, behavior: 'smooth' });
+      });
+    }
+    if (nextBtn) {
+      nextBtn.addEventListener('click', function (e) {
+        e.stopPropagation();
+        track.scrollBy({ left: track.clientWidth, behavior: 'smooth' });
+      });
+    }
+  }
+
+  async function wireUpPostInteractions() {
+    var userResult = await sb.auth.getUser();
+    currentUser = userResult.data.user;
+    initGalleries();
+    var likeButtons = document.querySelectorAll('.likeBtn');
+    for (var i = 0; i < likeButtons.length; i++) {
+      var btn = likeButtons[i];
+      var pid = btn.getAttribute('data-post-id');
+      refreshLikeCount(pid, btn);
+      btn.addEventListener('click', function () {
+        if (!currentUser) { alert('Sign in to like posts.'); return; }
+        toggleLike(this.getAttribute('data-post-id'), this, currentUser.id);
+      });
+    }
+
+    var saveButtons = document.querySelectorAll('.saveBtn');
+    for (var j = 0; j < saveButtons.length; j++) {
+      var sbtn = saveButtons[j];
+      sbtn.addEventListener('click', function () {
+        if (!currentUser) { alert('Sign in to save posts.'); return; }
+        toggleSave(this.getAttribute('data-post-id'), this, currentUser.id);
+      });
+    }
+
+    var toggleButtons = document.querySelectorAll('.toggleCommentsBtn');
+    for (var k = 0; k < toggleButtons.length; k++) {
+      var tbtn = toggleButtons[k];
+      tbtn.addEventListener('click', function () {
+        var pid = this.getAttribute('data-post-id');
+        var section = document.querySelector('.commentsSection[data-post-id="' + pid + '"]');
+        if (section.style.display === 'none') {
+          section.style.display = 'block';
+          var listEl = section.querySelector('.commentsList');
+          loadComments(pid, listEl);
+        } else {
+          section.style.display = 'none';
+        }
+      });
+    }
+
+    var commentInputs = document.querySelectorAll('.commentInput');
+    for (var m = 0; m < commentInputs.length; m++) {
+      var input = commentInputs[m];
+      input.addEventListener('keypress', async function (e) {
+        if (e.key === 'Enter') {
+          if (!currentUser) { alert('Sign in to comment.'); return; }
+          var pid = this.getAttribute('data-post-id');
+          var content = this.value.trim();
+          if (!content) { return; }
+          var username = currentUser.email;
+          if (currentUser.user_metadata && currentUser.user_metadata.username) {
+            username = currentUser.user_metadata.username;
+          }
+          await sb.from('comments').insert({
+            post_id: pid,
+            user_id: currentUser.id,
+            author_username: username,
+            content: content
+          });
+          this.value = '';
+          var section = document.querySelector('.commentsSection[data-post-id="' + pid + '"]');
+          var listEl = section.querySelector('.commentsList');
+          loadComments(pid, listEl);
+        }
+      });
+    }
+  }
+
+  async function showAuthStatus() {
+    var authStatus = document.getElementById('authStatus');
+    var result = await sb.auth.getUser();
+    var user = result.data.user;
+    if (user) {
+      var username = user.email;
+      if (user.user_metadata && user.user_metadata.username) {
+        username = user.user_metadata.username;
+      }
+      authStatus.innerHTML = 'Signed in as <strong style="color: var(--brass);">' + username + '</strong> &middot; <a href="#" id="logoutBtn" style="color: var(--brass);">Log out</a>';
+      document.getElementById('messagesNavLink').style.display = 'inline-flex';
+      document.getElementById('logoutBtn').addEventListener('click', async function (e) {
+        e.preventDefault();
+        await sb.auth.signOut();
+        window.location.reload();
+      });
+    } else {
+      authStatus.innerHTML = '<a href="account.html" style="color: var(--brass);">Sign in</a>';
+      document.getElementById('messagesNavLink').style.display = 'none';
+    }
+  }
+
+  document.getElementById('sortNewest').addEventListener('click', function () {
+    window.currentAscending = false;
+    this.style.background = 'var(--brass)';
+    this.style.color = 'var(--ink)';
+    this.style.border = 'none';
+    var o = document.getElementById('sortOldest');
+    o.style.background = 'none';
+    o.style.color = 'var(--brass)';
+    o.style.border = '1px solid var(--brass)';
+    loadPosts();
+  });
+
+  document.getElementById('sortOldest').addEventListener('click', function () {
+    window.currentAscending = true;
+    this.style.background = 'var(--brass)';
+    this.style.color = 'var(--ink)';
+    this.style.border = 'none';
+    var o = document.getElementById('sortNewest');
+    o.style.background = 'none';
+    o.style.color = 'var(--brass)';
+    o.style.border = '1px solid var(--brass)';
+    loadPosts();
+  });
+
+  var menuBtn = document.getElementById('menuToggleBtn');
+  menuBtn.addEventListener('click', function () {
+    document.getElementById('sideMenu').classList.add('is-open');
+    document.getElementById('sideMenuOverlay').classList.add('is-open');
+  });
+
+  function closeSideMenu() {
+    document.getElementById('sideMenu').classList.remove('is-open');
+    document.getElementById('sideMenuOverlay').classList.remove('is-open');
+  }
+  document.getElementById('sideMenuClose').addEventListener('click', closeSideMenu);
+  document.getElementById('sideMenuOverlay').addEventListener('click', closeSideMenu);
+
+  loadPosts();
+  showAuthStatus();
+</script>
+
+</body>
+</html>

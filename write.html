@@ -1,0 +1,261 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Write — Adversaria</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,400;0,600;1,400&family=Source+Serif+4:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="supabase-client.js"></script>
+</head>
+<body data-page-id="write" data-page-title="Write — Adversaria">
+
+<header class="site-header">
+  <div class="shell">
+    <a class="wordmark" href="index.html">The <span>Adversaria</span></a>
+    <nav class="site-nav">
+      <a href="index.html">Archive</a>
+      <a href="feed.html">Reading Room</a>
+      <a href="authors.html">Authors</a>
+    </nav>
+    <button class="menu-toggle-btn" id="menuToggleBtn">&#9776;</button>
+    <a class="icon-btn" href="messages.html" title="Messages" aria-label="Messages" id="messagesNavLink" style="display: none; margin-right: 8px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 2 11 13"/><path d="M22 2 15 22l-4-9-9-4z"/></svg><span class="icon-label">Messages</span></a>
+    <span id="authStatus" style="color: var(--paper-dim); font-size: 0.85rem;"></span>
+  </div>
+</header>
+<div class="side-menu-overlay" id="sideMenuOverlay"></div>
+<div class="side-menu" id="sideMenu">
+  <button class="side-menu-close" id="sideMenuClose">&times;</button>
+  <div style="clear: both; padding-top: 20px;">
+    <a href="index.html">Archive</a>
+    <a href="feed.html">Reading Room</a>
+    <a href="authors.html">Authors</a>
+    <a href="edit-profile.html">Edit Profile</a>
+    <a href="account.html">Account</a>
+    <a href="saved.html">Saved</a>
+    <a href="index.html#correspondence">Correspondence</a>
+    <a href="index.html#about">About the Keeper</a>
+  </div>
+</div>
+
+<main class="shell" style="max-width: 640px; margin: 60px auto; padding: 0 20px;">
+  <h1 style="font-family: var(--display); font-style: italic; color: var(--paper); font-size: 1.8rem;">Add to the archive</h1>
+
+  <div id="notSignedIn" style="margin-top: 20px; display: none;">
+    <p style="color: var(--paper-dim);">You need to be signed in to write here.</p>
+    <a href="account.html" style="color: var(--brass);">Go sign in &rarr;</a>
+  </div>
+
+  <div id="writeForm" style="margin-top: 20px; display: none;">
+    <input id="titleInput" type="text" placeholder="Title" style="width: 100%; padding: 10px; margin-bottom: 10px; background: var(--ink-raised); border: 1px solid var(--ink-line); color: var(--paper); border-radius: 4px; box-sizing: border-box;">
+    <textarea id="contentInput" placeholder="Write here..." rows="14" style="width: 100%; padding: 10px; margin-bottom: 14px; background: var(--ink-raised); border: 1px solid var(--ink-line); color: var(--paper); border-radius: 4px; font-family: var(--body); font-size: 1rem; resize: vertical; box-sizing: border-box;"></textarea>
+
+    <label style="color: var(--paper-dim); font-size: 0.85rem;">Images (pick as many as you like)</label>
+    <input id="imageInput" type="file" accept="image/*" multiple style="width: 100%; margin-top: 6px; margin-bottom: 14px; color: var(--paper-dim);">
+    <div id="imagePreviewWrap" style="display: none; margin-bottom: 14px;">
+      <div id="imagePreviewGrid" style="display: flex; gap: 8px; flex-wrap: wrap;"></div>
+    </div>
+
+    <label style="color: var(--paper-dim); font-size: 0.85rem;">Optional video link (YouTube or Vimeo)</label>
+    <input id="videoUrlInput" type="text" placeholder="https://youtube.com/watch?v=... or https://vimeo.com/..." style="width: 100%; padding: 10px; margin-top: 6px; margin-bottom: 14px; background: var(--ink-raised); border: 1px solid var(--ink-line); color: var(--paper); border-radius: 4px; box-sizing: border-box;">
+
+    <button id="submitBtn" style="padding: 10px 20px; background: var(--brass); border: none; color: var(--ink); border-radius: 4px; cursor: pointer;">Publish</button>
+    <p id="statusMsg" style="margin-top: 14px; color: var(--paper-dim);"></p>
+  </div>
+</main>
+
+<script src="reader.js"></script>
+<script>
+  var currentUser = null;
+
+  async function checkAuth() {
+    var notSignedIn = document.getElementById('notSignedIn');
+    var writeForm = document.getElementById('writeForm');
+    var result = await sb.auth.getUser();
+    var user = result.data.user;
+    if (!user) {
+      notSignedIn.style.display = 'block';
+      writeForm.style.display = 'none';
+    } else {
+      currentUser = user;
+      notSignedIn.style.display = 'none';
+      writeForm.style.display = 'block';
+    }
+  }
+  checkAuth();
+
+  var selectedFiles = [];
+
+  document.getElementById('imageInput').addEventListener('change', function () {
+    var newFiles = Array.prototype.slice.call(this.files);
+    for (var i = 0; i < newFiles.length; i++) {
+      selectedFiles.push(newFiles[i]);
+    }
+    this.value = '';
+    renderImagePreviews();
+  });
+
+  function renderImagePreviews() {
+    var wrap = document.getElementById('imagePreviewWrap');
+    var grid = document.getElementById('imagePreviewGrid');
+    if (selectedFiles.length === 0) {
+      wrap.style.display = 'none';
+      grid.innerHTML = '';
+      return;
+    }
+    wrap.style.display = 'block';
+    grid.innerHTML = '';
+    for (var i = 0; i < selectedFiles.length; i++) {
+      addPreviewThumb(selectedFiles[i], i, grid);
+    }
+  }
+
+  function addPreviewThumb(file, index, grid) {
+    var thumbWrap = document.createElement('div');
+    thumbWrap.style.cssText = 'position: relative; width: 90px; height: 90px; border-radius: 6px; overflow: hidden; border: 1px solid var(--ink-line); flex: none;';
+
+    var img = document.createElement('img');
+    img.style.cssText = 'width: 100%; height: 100%; object-fit: cover; display: block;';
+    var reader = new FileReader();
+    reader.onload = function (e) {
+      img.src = e.target.result;
+    };
+    reader.readAsDataURL(file);
+
+    var removeBtn = document.createElement('button');
+    removeBtn.type = 'button';
+    removeBtn.textContent = String.fromCharCode(215);
+    removeBtn.style.cssText = 'position: absolute; top: 2px; right: 2px; width: 20px; height: 20px; border-radius: 50%; background: rgba(0,0,0,0.6); color: white; border: none; cursor: pointer; font-size: 0.8rem; line-height: 1;';
+    removeBtn.addEventListener('click', function () {
+      selectedFiles.splice(index, 1);
+      renderImagePreviews();
+    });
+
+    if (index === 0) {
+      var badge = document.createElement('span');
+      badge.textContent = 'Cover';
+      badge.style.cssText = 'position: absolute; bottom: 2px; left: 2px; background: rgba(0,0,0,0.6); color: var(--brass); font-size: 0.62rem; letter-spacing: 0.04em; padding: 2px 6px; border-radius: 3px;';
+      thumbWrap.appendChild(badge);
+    }
+
+    thumbWrap.appendChild(img);
+    thumbWrap.appendChild(removeBtn);
+    grid.appendChild(thumbWrap);
+  }
+
+  function getVideoEmbedUrl(url) {
+    if (!url) { return null; }
+    var youtubeMatch = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([a-zA-Z0-9_-]{11})/);
+    if (youtubeMatch) {
+      return 'https://www.youtube.com/embed/' + youtubeMatch[1];
+    }
+    var vimeoMatch = url.match(/vimeo\.com\/(?:video\/)?(\d+)/);
+    if (vimeoMatch) {
+      return 'https://player.vimeo.com/video/' + vimeoMatch[1];
+    }
+    return null;
+  }
+
+  document.getElementById('submitBtn').addEventListener('click', async function () {
+    var statusMsg = document.getElementById('statusMsg');
+    var title = document.getElementById('titleInput').value.trim();
+    var content = document.getElementById('contentInput').value.trim();
+    if (!title || !content) {
+      statusMsg.textContent = 'Please fill in both title and content.';
+      return;
+    }
+
+    var videoUrl = document.getElementById('videoUrlInput').value.trim();
+    if (videoUrl && !getVideoEmbedUrl(videoUrl)) {
+      statusMsg.textContent = 'That video link does not look like a YouTube or Vimeo URL. Please check it or leave it blank.';
+      return;
+    }
+
+    statusMsg.textContent = 'Publishing...';
+
+    var imageUrls = [];
+    for (var i = 0; i < selectedFiles.length; i++) {
+      var file = selectedFiles[i];
+      var fileName = currentUser.id + '-' + Date.now() + '-' + i + '-' + file.name;
+      var uploadResult = await sb.storage.from('post-images').upload(fileName, file);
+      if (uploadResult.error) {
+        statusMsg.textContent = 'Image upload failed: ' + uploadResult.error.message;
+        return;
+      }
+      var urlResult = sb.storage.from('post-images').getPublicUrl(fileName);
+      imageUrls.push(urlResult.data.publicUrl);
+    }
+
+    var username = 'anonymous';
+    if (currentUser.user_metadata && currentUser.user_metadata.username) {
+      username = currentUser.user_metadata.username;
+    }
+
+    var insertData = {
+      title: title,
+      content: content,
+      author_username: username,
+      user_id: currentUser.id
+    };
+    if (imageUrls.length > 0) {
+      insertData.image_urls = imageUrls;
+      insertData.image_url = imageUrls[0];
+    }
+    if (videoUrl) {
+      insertData.video_url = videoUrl;
+    }
+
+    var result = await sb.from('posts').insert(insertData);
+    if (result.error) {
+      statusMsg.textContent = result.error.message;
+    } else {
+      statusMsg.textContent = 'Published.';
+      document.getElementById('titleInput').value = '';
+      document.getElementById('contentInput').value = '';
+      document.getElementById('imageInput').value = '';
+      document.getElementById('videoUrlInput').value = '';
+      selectedFiles = [];
+      renderImagePreviews();
+    }
+  });
+
+  async function showAuthStatus() {
+    var authStatus = document.getElementById('authStatus');
+    var result = await sb.auth.getUser();
+    var user = result.data.user;
+    if (user) {
+      var username = user.email;
+      if (user.user_metadata && user.user_metadata.username) {
+        username = user.user_metadata.username;
+      }
+      authStatus.innerHTML = 'Signed in as <strong style="color: var(--brass);">' + username + '</strong> &middot; <a href="#" id="logoutBtn" style="color: var(--brass);">Log out</a>';
+      document.getElementById('messagesNavLink').style.display = 'inline-flex';
+      document.getElementById('logoutBtn').addEventListener('click', async function (e) {
+        e.preventDefault();
+        await sb.auth.signOut();
+        window.location.reload();
+      });
+    } else {
+      authStatus.innerHTML = '<a href="account.html" style="color: var(--brass);">Sign in</a>';
+      document.getElementById('messagesNavLink').style.display = 'none';
+    }
+  }
+  showAuthStatus();
+  var menuBtn = document.getElementById('menuToggleBtn');
+  menuBtn.addEventListener('click', function () {
+    document.getElementById('sideMenu').classList.add('is-open');
+    document.getElementById('sideMenuOverlay').classList.add('is-open');
+  });
+  function closeSideMenu() {
+    document.getElementById('sideMenu').classList.remove('is-open');
+    document.getElementById('sideMenuOverlay').classList.remove('is-open');
+  }
+  document.getElementById('sideMenuClose').addEventListener('click', closeSideMenu);
+  document.getElementById('sideMenuOverlay').addEventListener('click', closeSideMenu);
+</script>
+
+</body>
+</html>

@@ -1,0 +1,334 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Adversaria — a private archive of manuscripts</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,400;0,600;1,500;1,600&family=Source+Serif+4:ital,wght@0,400;0,600;1,400&family=Caveat:wght@500;600&family=Courier+Prime:wght@400;700&family=Cormorant+Garamond:ital,wght@0,600;1,600&family=Tangerine:wght@700&family=UnifrakturMaguntia&family=MedievalSharp&family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Uncial+Antiqua&family=Great+Vibes&family=Cinzel+Decorative:wght@700&family=Sacramento&family=Spectral:ital,wght@0,600;1,600&family=IM+Fell+English:ital@0;1&family=Special+Elite&family=Cinzel:wght@600&family=Bodoni+Moda:ital,wght@0,600;1,600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="supabase-client.js"></script>
+</head>
+<body data-page-id="index" data-page-title="Adversaria — Archive">
+
+<div class="dimmer-overlay" id="dimmerOverlay"></div>
+
+<header class="site-header">
+  <div class="shell">
+    <a class="wordmark" href="index.html">The <span>Adversaria</span></a>
+    <nav class="site-nav">
+      <a href="index.html" class="is-active">Archive</a>
+      <a href="feed.html">Reading Room</a>
+      <a href="authors.html">Authors</a>
+    </nav>
+    <button class="menu-toggle-btn" id="menuToggleBtn">&#9776;</button>
+    <div class="header-tools">
+      <a class="icon-btn" href="messages.html" title="Messages" aria-label="Messages" id="messagesNavLink" style="display: none;">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 2 11 13"/><path d="M22 2 15 22l-4-9-9-4z"/></svg>
+        <span class="icon-label">Messages</span>
+      </a>
+      <button class="icon-btn" id="searchToggle" title="Search the archive (/)" aria-label="Search">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+        <span class="icon-label">Search</span>
+      </button>
+      <button class="icon-btn" id="settingsToggle" title="Reading settings" aria-label="Reading settings">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+        <span class="icon-label">Aa</span>
+      </button>
+    </div>
+  </div>
+</header>
+<div class="side-menu-overlay" id="sideMenuOverlay"></div>
+<div class="side-menu" id="sideMenu">
+  <button class="side-menu-close" id="sideMenuClose">&times;</button>
+  <div style="clear: both; padding-top: 20px;">
+    <a href="index.html">Archive</a>
+    <a href="feed.html">Reading Room</a>
+    <a href="authors.html">Authors</a>
+    <a href="write.html">Write</a>
+    <a href="edit-profile.html">Edit Profile</a>
+    <a href="account.html">Account</a>
+    <a href="saved.html">Saved</a>
+    <a href="index.html#correspondence">Correspondence</a>
+    <a href="index.html#about">About the Keeper</a>
+  </div>
+</div>
+
+<main>
+  <section class="hero shell">
+    <p class="hero-stamp">Accession open · reading room quiet</p>
+    <h1>A private archive<br>of <em>unfinished</em> hands.</h1>
+    <p class="hero-sub">Every manuscript here keeps its margins. Notes in another ink, a translator's second thought, the name written small enough that you'd have to be looking. Nothing here is only the clean text — read closer.</p>
+
+    <p class="hero-note" aria-hidden="true">
+      <svg width="70" height="18" viewBox="0 0 70 18" fill="none"><path d="M2 14C14 2 24 2 34 9C44 16 54 16 68 4" stroke="#C98A3E" stroke-width="1.4" stroke-linecap="round"/></svg>
+      began this one at 2am, changed my mind by morning
+    </p>
+
+    <dl class="ledger">
+      <div><dt>Manuscripts held</dt><dd>04</dd></div>
+      <div><dt>In active hand</dt><dd>02</dd></div>
+      <div><dt>Languages of note</dt><dd>03</dd></div>
+      <div><dt>Archive opened</dt><dd>2024</dd></div>
+    </dl>
+  </section>
+
+  <section class="continue-strip shell" id="continueStrip" hidden>
+    <div class="continue-inner">
+      <span class="continue-label">Return to where the ink left off</span>
+      <a href="manuscript.html" id="continueLink" class="continue-link">
+        <strong id="continueTitle"></strong>
+        <span id="continueMeta"></span>
+      </a>
+      <div class="continue-progress"><div id="continueProgressFill"></div></div>
+    </div>
+  </section>
+
+  <section class="catalog shell" id="catalog">
+    <div class="catalog-head">
+      <h2>The holdings</h2>
+      <span class="catalog-filter">sorted by accession, most recent first</span>
+    </div>
+    <!-- Entry 1 -->
+    <article class="entry">
+      <div class="entry-num">MS.<br>014<small>ongoing</small></div>
+      <div class="entry-main">
+        <a class="entry-title-link" href="manuscript.html">
+          <h3 class="entry-title">The Correspondence of Vane &amp; Ashworth</h3>
+        </a>
+        <p class="entry-desc">Two scholars, one dead language, and a translation neither of them will admit is also a love letter. Told through the manuscript itself — footnotes, disputed readings, and the marginalia they leave for each other instead of saying it plainly.</p>
+        <div class="entry-tags">
+          <span class="tag">Epistolary</span>
+          <span class="tag">Dark academia</span>
+          <span class="tag is-wax">Annotated</span>
+        </div>
+      </div>
+      <div class="entry-margin">
+        <span class="entry-status is-ongoing">Ch. 19 · updated Tuesday</span>
+        <span class="entry-marginalia">read this one slowly</span>
+      </div>
+    </article>
+
+    <!-- Entry 2 -->
+    <article class="entry">
+      <div class="entry-num">MS.<br>013<small>complete</small></div>
+      <div class="entry-main">
+        <a class="entry-title-link" href="manuscript.html">
+          <h3 class="entry-title">A Catalogue of Small Heresies</h3>
+        </a>
+        <p class="entry-desc">A librarian is asked to catalogue a collection that shouldn't exist. Each chapter is a false entry in a false index — and the truth, when it comes, is written in someone else's hand in the margin of card 44.</p>
+        <div class="entry-tags">
+          <span class="tag">Gothic</span>
+          <span class="tag">Novella</span>
+        </div>
+      </div>
+      <div class="entry-margin">
+        <span class="entry-status">Complete · 32 chapters</span>
+        <div class="seal">MS</div>
+      </div>
+    </article>
+
+    <!-- Entry 3 -->
+    <article class="entry">
+      <div class="entry-num">MS.<br>009<small>ongoing</small></div>
+      <div class="entry-main">
+        <a class="entry-title-link" href="manuscript.html">
+          <h3 class="entry-title">Notes Toward a Drowned Library</h3>
+        </a>
+        <p class="entry-desc">The last reader of a flooding archive keeps a running log of what she saves and what she doesn't. A novel about triage, memory, and which books you carry out first when you can only carry a few.</p>
+        <div class="entry-tags">
+          <span class="tag">Literary</span>
+          <span class="tag">Slow burn</span>
+        </div>
+      </div>
+      <div class="entry-margin">
+        <span class="entry-status is-ongoing">Ch. 7 · updated last week</span>
+        <span class="entry-marginalia">still finding the ending</span>
+      </div>
+    </article>
+
+    <!-- Entry 4 -->
+    <article class="entry">
+      <div class="entry-num">MS.<br>002<small>complete</small></div>
+      <div class="entry-main">
+        <a class="entry-title-link" href="manuscript.html">
+          <h3 class="entry-title">The Amanuensis</h3>
+        </a>
+        <p class="entry-desc">A scribe hired to copy a dying poet's final work begins, quietly, to change it — one word at a time, small enough that no one checking would notice. My first finished novel, and still the one I reread.</p>
+        <div class="entry-tags">
+          <span class="tag">Historical</span>
+          <span class="tag">Debut</span>
+        </div>
+      </div>
+      <div class="entry-margin">
+        <span class="entry-status">Complete · 41 chapters</span>
+        <div class="seal">MS</div>
+      </div>
+    </article>
+  </section>
+</main>
+
+<section class="shell" id="correspondence" style="padding: 60px 0;">
+  <h2 style="font-family: var(--display); font-style: italic; color: var(--paper); font-size: 1.8rem;">Correspondence</h2>
+  <p style="color: var(--paper-dim); max-width: 60ch; margin-top: 16px; line-height: 1.7;">
+    If something here found you at the right moment, or the wrong one, write and say so.
+  </p>
+  <a href="mailto:cioranscigarettes@hotmail.com" style="display: inline-block; margin-top: 16px; color: var(--brass); font-family: var(--hand); font-size: 1.2rem;">cioranscigarettes@hotmail.com</a>
+</section>
+
+<section class="shell" id="about-keeper" style="padding: 60px 0;">
+  <h2 style="font-family: var(--display); font-style: italic; color: var(--paper); font-size: 1.8rem;">About the Keeper</h2>
+  <p style="color: var(--paper-dim); max-width: 60ch; margin-top: 16px; line-height: 1.7;">
+    This is where the drafts live before they're ready to stop being drafts. I'm not sure anything is ever fully ready to stop being one — finished always felt like a decision made under deadline more than a fact anyone discovered.
+  </p>
+  <p style="color: var(--paper-dim); max-width: 60ch; margin-top: 16px; line-height: 1.7;">
+    I write slowly, keep too much, publish less than I keep. The margins are usually where the truer version is. Not always. There's one page where the margin note is worse than the draft, and I left it in anyway, because taking it out felt like lying about how the thing got made.
+  </p>
+  <p style="color: var(--paper-dim); max-width: 60ch; margin-top: 16px; line-height: 1.7;">
+    I don't fully know what unfinished means anymore. I use the word constantly.
+  </p>
+</section>
+
+<footer class="site-footer shell" id="about">
+  <span>&copy; 2026 The Adversaria. Kept, not published.</span>
+  <span><a href="index.html#correspondence">Leave a note in the margin</a></span>
+</footer>
+
+<!-- Search -->
+<div class="modal-overlay" id="searchOverlay" hidden>
+  <div class="search-modal" role="dialog" aria-modal="true" aria-label="Search the archive">
+    <div class="search-input-row">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+      <input type="text" id="searchInput" placeholder="Search titles, tags, holdings…" autocomplete="off">
+      <kbd>Esc</kbd>
+    </div>
+    <div class="search-results" id="searchResults"></div>
+  </div>
+</div>
+
+<!-- Theme picker -->
+<div class="modal-overlay" id="themeModalOverlay" hidden></div>
+<div class="theme-modal" id="themeModal" role="dialog" aria-modal="true" aria-label="Choose a theme" hidden>
+  <div class="settings-head">
+    <h2>Choose a theme</h2>
+    <button class="icon-btn" id="themeModalClose" aria-label="Close theme picker">&times;</button>
+  </div>
+
+  <div class="theme-grid-section">
+    <h3 class="theme-grid-heading">The Archive</h3>
+    <div class="theme-grid">
+      <button data-theme="lamplit" class="theme-swatch" style="--sw:#1B1712"><span>Lamplit</span></button>
+      <button data-theme="night" class="theme-swatch" style="--sw:#000000"><span>Night</span></button>
+      <button data-theme="sepia" class="theme-swatch" style="--sw:#EBDDBD"><span>Sepia</span></button>
+      <button data-theme="paper" class="theme-swatch" style="--sw:#F6F1E4"><span>Paper</span></button>
+      <button data-theme="forest" class="theme-swatch" style="--sw:#1A2E22"><span>Forest</span></button>
+      <button data-theme="midnight-rose" class="theme-swatch" style="--sw:#2B1420"><span>Midnight Rose</span></button>
+    </div>
+  </div>
+
+  <div class="theme-grid-section">
+    <h3 class="theme-grid-heading">Studies in Contrast</h3>
+    <div class="theme-grid">
+      <button data-theme="bone-ash" class="theme-swatch" style="--sw:#1A1A1A"><span>Bone &amp; Ash</span></button>
+      <button data-theme="ember-soot" class="theme-swatch" style="--sw:#1A1210"><span>Ember &amp; Soot</span></button>
+    </div>
+  </div>
+
+  <div class="theme-grid-section">
+    <h3 class="theme-grid-heading">Period Rooms</h3>
+    <div class="theme-grid">
+      <button data-theme="victorian-parlour" class="theme-swatch" style="--sw:#22121A"><span>Victorian Parlour</span></button>
+      <button data-theme="gothic-spire" class="theme-swatch" style="--sw:#14171B"><span>Gothic Spire</span></button>
+      <button data-theme="architects-blueprint" class="theme-swatch" style="--sw:#0B1E3D"><span>Architect's Blueprint</span></button>
+      <button data-theme="illuminated-manuscript" class="theme-swatch" style="--sw:#17131E"><span>Illuminated Manuscript</span></button>
+      <button data-theme="absinthe-nouveau" class="theme-swatch" style="--sw:#0F1F16"><span>Absinthe Nouveau</span></button>
+      <button data-theme="observatory" class="theme-swatch" style="--sw:#0A0E1C"><span>Observatory</span></button>
+      <button data-theme="apothecary" class="theme-swatch" style="--sw:#161A12"><span>Apothecary</span></button>
+      <button data-theme="brass-gearwork" class="theme-swatch" style="--sw:#1B140F"><span>Brass &amp; Gearwork</span></button>
+      <button data-theme="marble-atrium" class="theme-swatch" style="--sw:#1A1B1D"><span>Marble Atrium</span></button>
+      <button data-theme="crimson-study" class="theme-swatch" style="--sw:#150C0D"><span>Crimson Study</span></button>
+    </div>
+  </div>
+</div>
+
+<!-- Reading settings -->
+<div class="modal-overlay" id="settingsOverlay" hidden></div>
+<aside class="settings-drawer" id="settingsDrawer" aria-label="Reading settings" hidden>
+  <div class="settings-head">
+    <h2>Reading settings</h2>
+    <button class="icon-btn" id="settingsClose" aria-label="Close settings">&times;</button>
+  </div>
+
+  <div class="settings-group">
+    <span class="settings-label">Theme &amp; brightness</span>
+    <button type="button" class="theme-picker-trigger" id="themePickerOpen">
+      <span class="theme-picker-dot" id="themePickerDot" style="--sw:#1B1712"></span>
+      <span id="themePickerName">Lamplit</span>
+      <span class="theme-picker-arrow">Change &rarr;</span>
+    </button>
+  </div>
+
+  <div class="settings-group">
+    <span class="settings-label">Dim overlay <span class="range-value">0%</span></span>
+    <input type="range" id="dimmerRange" min="0" max="70" step="5" value="0">
+  </div>
+  <div class="settings-group">
+    <span class="settings-label">Typeface</span>
+    <div class="pill-row" id="fontPills">
+      <button data-font="serif" class="pill">Serif</button>
+      <button data-font="classic" class="pill">Classic</button>
+      <button data-font="sans" class="pill">Sans</button>
+      <button data-font="mono" class="pill">Mono</button>
+    </div>
+    <label class="settings-check"><input type="checkbox" id="dyslexicToggle"> Easy-read spacing</label>
+  </div>
+
+  <div class="settings-group">
+    <span class="settings-label">Text size <span class="range-value">18px</span></span>
+    <input type="range" id="fontSizeRange" min="14" max="26" step="1" value="18">
+  </div>
+
+  <div class="settings-group">
+    <span class="settings-label">Line spacing <span class="range-value">1.85</span></span>
+    <input type="range" id="lineHeightRange" min="1.3" max="2.3" step="0.05" value="1.85">
+  </div>
+
+  <div class="settings-group">
+    <span class="settings-label">Column width <span class="range-value">62ch</span></span>
+    <input type="range" id="measureRange" min="46" max="86" step="2" value="62">
+  </div>
+
+  <div class="settings-group">
+    <span class="settings-label">Your marks</span>
+    <div id="markList" class="mark-list"></div>
+  </div>
+
+  <button class="settings-reset" id="settingsReset">Reset to defaults</button>
+</aside>
+
+<script src="reader.js"></script>
+<script>
+  var menuBtn = document.getElementById('menuToggleBtn');
+  menuBtn.addEventListener('click', function () {
+    document.getElementById('sideMenu').classList.add('is-open');
+    document.getElementById('sideMenuOverlay').classList.add('is-open');
+  });
+  function closeSideMenu() {
+    document.getElementById('sideMenu').classList.remove('is-open');
+    document.getElementById('sideMenuOverlay').classList.remove('is-open');
+  }
+  document.getElementById('sideMenuClose').addEventListener('click', closeSideMenu);
+  document.getElementById('sideMenuOverlay').addEventListener('click', closeSideMenu);
+
+  async function showMessagesIcon() {
+    var result = await sb.auth.getUser();
+    if (result.data.user) {
+      document.getElementById('messagesNavLink').style.display = 'inline-flex';
+    }
+  }
+  showMessagesIcon();
+</script>
+</body>
+</html>

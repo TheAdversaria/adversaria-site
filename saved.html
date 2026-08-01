@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Saved — Adversaria</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,400;0,600;1,400&family=Source+Serif+4:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="supabase-client.js"></script>
+</head>
+<body data-page-id="saved" data-page-title="Saved — Adversaria">
+
+<header class="site-header">
+  <div class="shell">
+    <a class="wordmark" href="index.html">The <span>Adversaria</span></a>
+    <nav class="site-nav">
+      <a href="index.html">Archive</a>
+      <a href="feed.html">Reading Room</a>
+      <a href="authors.html">Authors</a>
+    </nav>
+    <button class="menu-toggle-btn" id="menuToggleBtn">&#9776;</button>
+    <a class="icon-btn" href="messages.html" title="Messages" aria-label="Messages" id="messagesNavLink" style="display: none; margin-right: 8px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 2 11 13"/><path d="M22 2 15 22l-4-9-9-4z"/></svg><span class="icon-label">Messages</span></a>
+    <span id="authStatus" style="color: var(--paper-dim); font-size: 0.85rem;"></span>
+  </div>
+</header>
+<div class="side-menu-overlay" id="sideMenuOverlay"></div>
+<div class="side-menu" id="sideMenu">
+  <button class="side-menu-close" id="sideMenuClose">&times;</button>
+  <div style="clear: both; padding-top: 20px;">
+    <a href="index.html">Archive</a>
+    <a href="feed.html">Reading Room</a>
+    <a href="authors.html">Authors</a>
+    <a href="write.html">Write</a>
+    <a href="edit-profile.html">Edit Profile</a>
+    <a href="account.html">Account</a>
+    <a href="saved.html">Saved</a>
+    <a href="index.html#correspondence">Correspondence</a>
+    <a href="index.html#about">About the Keeper</a>
+  </div>
+</div>
+
+<main class="shell" style="max-width: 720px; margin: 60px auto; padding: 0 20px;">
+  <h1 style="font-family: var(--display); font-style: italic; color: var(--paper); font-size: 1.8rem;">Your Saved Entries</h1>
+  <div id="savedList" style="margin-top: 30px;"></div>
+</main>
+
+<script src="reader.js"></script>
+<script>
+  function escapeHtml(s) {
+    var d = document.createElement('div');
+    d.textContent = s;
+    return d.innerHTML;
+  }
+
+  async function loadSaved() {
+    var list = document.getElementById('savedList');
+    var userResult = await sb.auth.getUser();
+    var user = userResult.data.user;
+    if (!user) {
+      list.innerHTML = '<p style="color: var(--paper-dim);">Sign in to see your saved entries.</p>';
+      return;
+    }
+    var savesResult = await sb.from('saves').select('post_id').eq('user_id', user.id);
+    var saves = savesResult.data;
+    if (!saves || saves.length === 0) {
+      list.innerHTML = '<p style="color: var(--paper-dim);">Nothing saved yet.</p>';
+      return;
+    }
+    var ids = [];
+    for (var i = 0; i < saves.length; i++) {
+      ids.push(saves[i].post_id);
+    }
+    var postsResult = await sb.from('posts').select('*').in('id', ids);
+    var posts = postsResult.data;
+    if (!posts || posts.length === 0) {
+      list.innerHTML = '<p style="color: var(--paper-dim);">Nothing saved yet.</p>';
+      return;
+    }
+    var html = '';
+    for (var j = 0; j < posts.length; j++) {
+      var p = posts[j];
+      html += '<article style="border-bottom: 1px solid var(--ink-line); padding: 20px 0;">';
+      html += '<h2 style="font-family: var(--display); color: var(--paper); font-size: 1.3rem;">' + escapeHtml(p.title) + '</h2>';
+      html += '<a href="profile.html?username=' + encodeURIComponent(p.author_username) + '" style="color: var(--brass); font-size: 0.85rem;">by ' + escapeHtml(p.author_username) + '</a>';
+      html += '<p style="color: var(--paper-dim); margin-top: 10px; white-space: pre-wrap;">' + escapeHtml(p.content) + '</p>';
+      html += '</article>';
+    }
+    list.innerHTML = html;
+  }
+
+  async function showAuthStatus() {
+    var authStatus = document.getElementById('authStatus');
+    var result = await sb.auth.getUser();
+    var user = result.data.user;
+if (user) {
+      var username = user.email;
+      if (user.user_metadata && user.user_metadata.username) {
+        username = user.user_metadata.username;
+      }
+      authStatus.innerHTML = 'Signed in as <strong style="color: var(--brass);">' + username + '</strong> &middot; <a href="#" id="logoutBtn" style="color: var(--brass);">Log out</a>';
+      document.getElementById('messagesNavLink').style.display = 'inline-flex';
+      document.getElementById('logoutBtn').addEventListener('click', async function (e) {
+        e.preventDefault();
+        await sb.auth.signOut();
+        window.location.reload();
+      });
+    } else {
+      authStatus.innerHTML = '<a href="account.html" style="color: var(--brass);">Sign in</a>';
+      document.getElementById('messagesNavLink').style.display = 'none';
+    }
+  }
+
+  var menuBtn = document.getElementById('menuToggleBtn');
+  menuBtn.addEventListener('click', function () {
+    document.getElementById('sideMenu').classList.add('is-open');
+    document.getElementById('sideMenuOverlay').classList.add('is-open');
+  });
+  function closeSideMenu() {
+    document.getElementById('sideMenu').classList.remove('is-open');
+    document.getElementById('sideMenuOverlay').classList.remove('is-open');
+  }
+  document.getElementById('sideMenuClose').addEventListener('click', closeSideMenu);
+  document.getElementById('sideMenuOverlay').addEventListener('click', closeSideMenu);
+
+  loadSaved();
+  showAuthStatus();
+</script>
+
+</body>
+</html>

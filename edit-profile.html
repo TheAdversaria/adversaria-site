@@ -1,0 +1,179 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Edit Profile — Adversaria</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,400;0,600;1,400&family=Source+Serif+4:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="supabase-client.js"></script>
+</head>
+<body data-page-id="edit-profile" data-page-title="Edit Profile — Adversaria">
+
+<header class="site-header">
+  <div class="shell">
+    <a class="wordmark" href="index.html">The <span>Adversaria</span></a>
+    <nav class="site-nav">
+      <a href="index.html">Archive</a>
+      <a href="feed.html">Reading Room</a>
+      <a href="authors.html">Authors</a>
+    </nav>
+    <button class="menu-toggle-btn" id="menuToggleBtn">&#9776;</button>
+    <a class="icon-btn" href="messages.html" title="Messages" aria-label="Messages" id="messagesNavLink" style="display: none; margin-right: 8px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 2 11 13"/><path d="M22 2 15 22l-4-9-9-4z"/></svg><span class="icon-label">Messages</span></a>
+    <span id="authStatus" style="color: var(--paper-dim); font-size: 0.85rem;"></span>
+  </div>
+</header>
+<div class="side-menu-overlay" id="sideMenuOverlay"></div>
+<div class="side-menu" id="sideMenu">
+  <button class="side-menu-close" id="sideMenuClose">&times;</button>
+  <div style="clear: both; padding-top: 20px;">
+    <a href="index.html">Archive</a>
+    <a href="feed.html">Reading Room</a>
+    <a href="authors.html">Authors</a>
+    <a href="write.html">Write</a>
+    <a href="account.html">Account</a>
+    <a href="saved.html">Saved</a>
+    <a href="index.html#correspondence">Correspondence</a>
+    <a href="index.html#about">About the Keeper</a>
+  </div>
+</div>
+
+<main class="shell" style="max-width: 480px; margin: 60px auto; padding: 0 20px;">
+  <h1 style="font-family: var(--display); font-style: italic; color: var(--paper); font-size: 1.8rem;">Edit Profile</h1>
+
+  <div style="margin-top: 24px;">
+    <img id="avatarPreview" src="" style="width: 100px; height: 100px; border-radius: 50%; object-fit: cover; display: none; margin-bottom: 12px; border: 1px solid var(--ink-line);">
+    <input id="avatarInput" type="file" accept="image/*" style="width: 100%; margin-bottom: 14px; color: var(--paper-dim);">
+
+    <textarea id="bioInput" placeholder="Write a short bio..." rows="6" style="width: 100%; padding: 10px; margin-bottom: 14px; background: var(--ink-raised); border: 1px solid var(--ink-line); color: var(--paper); border-radius: 4px; font-family: var(--body); box-sizing: border-box;"></textarea>
+
+    <button id="saveProfileBtn" style="width: 100%; padding: 10px; background: var(--brass); border: none; color: var(--ink); border-radius: 4px; cursor: pointer;">Save Profile</button>
+    <p id="statusMsg" style="margin-top: 16px; color: var(--paper-dim);"></p>
+  </div>
+</main>
+
+<script src="reader.js"></script>
+<script>
+  var currentUser = null;
+
+  async function loadProfile() {
+    var userResult = await sb.auth.getUser();
+    currentUser = userResult.data.user;
+    if (!currentUser) {
+      document.getElementById('statusMsg').textContent = 'Please sign in first.';
+      return;
+    }
+    var result = await sb.from('profiles').select('*').eq('user_id', currentUser.id);
+    var rows = result.data;
+    if (rows && rows.length > 0) {
+      document.getElementById('bioInput').value = rows[0].bio || '';
+      if (rows[0].avatar_url) {
+        var img = document.getElementById('avatarPreview');
+        img.src = rows[0].avatar_url;
+        img.style.display = 'block';
+      }
+    }
+  }
+  loadProfile();
+
+  document.getElementById('avatarInput').addEventListener('change', function () {
+    var file = this.files[0];
+    if (!file) { return; }
+    var reader = new FileReader();
+    reader.onload = function (e) {
+      var img = document.getElementById('avatarPreview');
+      img.src = e.target.result;
+      img.style.display = 'block';
+    };
+    reader.readAsDataURL(file);
+  });
+  document.getElementById('saveProfileBtn').addEventListener('click', async function () {
+    var statusMsg = document.getElementById('statusMsg');
+    if (!currentUser) {
+      statusMsg.textContent = 'Please sign in first.';
+      return;
+    }
+    statusMsg.textContent = 'Saving...';
+
+    var avatarUrl = null;
+    var fileInput = document.getElementById('avatarInput');
+    var file = fileInput.files[0];
+
+    if (file) {
+      var fileName = currentUser.id + '-' + Date.now() + '-' + file.name;
+      var uploadResult = await sb.storage.from('avatars').upload(fileName, file);
+      if (uploadResult.error) {
+        statusMsg.textContent = 'Upload failed: ' + uploadResult.error.message;
+        return;
+      }
+      var urlResult = sb.storage.from('avatars').getPublicUrl(fileName);
+      avatarUrl = urlResult.data.publicUrl;
+    }
+
+    var username = currentUser.email;
+    if (currentUser.user_metadata && currentUser.user_metadata.username) {
+      username = currentUser.user_metadata.username;
+    }
+    var bio = document.getElementById('bioInput').value;
+
+    var existing = await sb.from('profiles').select('id').eq('user_id', currentUser.id);
+    var updateData = { user_id: currentUser.id, username: username, bio: bio };
+    if (avatarUrl) {
+      updateData.avatar_url = avatarUrl;
+    }
+
+    var saveResult;
+    if (existing.data && existing.data.length > 0) {
+      saveResult = await sb.from('profiles').update(updateData).eq('user_id', currentUser.id);
+    } else {
+      saveResult = await sb.from('profiles').insert(updateData);
+    }
+
+    if (saveResult.error) {
+      statusMsg.textContent = saveResult.error.message;
+    } else {
+      statusMsg.textContent = 'Profile saved.';
+    }
+  });
+
+  async function showAuthStatus() {
+    var authStatus = document.getElementById('authStatus');
+    var result = await sb.auth.getUser();
+    var user = result.data.user;
+    if (user) {
+      var username = user.email;
+      if (user.user_metadata && user.user_metadata.username) {
+        username = user.user_metadata.username;
+      }
+      authStatus.innerHTML = 'Signed in as <strong style="color: var(--brass);">' + username + '</strong> &middot; <a href="#" id="logoutBtn" style="color: var(--brass);">Log out</a>';
+      document.getElementById('messagesNavLink').style.display = 'inline-flex';
+      document.getElementById('logoutBtn').addEventListener('click', async function (e) {
+        e.preventDefault();
+        await sb.auth.signOut();
+        window.location.reload();
+      });
+    } else {
+      authStatus.innerHTML = '<a href="account.html" style="color: var(--brass);">Sign in</a>';
+      document.getElementById('messagesNavLink').style.display = 'none';
+    }
+  }
+  showAuthStatus();
+
+  var menuBtn = document.getElementById('menuToggleBtn');
+  menuBtn.addEventListener('click', function () {
+    document.getElementById('sideMenu').classList.add('is-open');
+    document.getElementById('sideMenuOverlay').classList.add('is-open');
+  });
+  function closeSideMenu() {
+    document.getElementById('sideMenu').classList.remove('is-open');
+    document.getElementById('sideMenuOverlay').classList.remove('is-open');
+  }
+  document.getElementById('sideMenuClose').addEventListener('click', closeSideMenu);
+  document.getElementById('sideMenuOverlay').addEventListener('click', closeSideMenu);
+</script>
+
+</body>
+</html>

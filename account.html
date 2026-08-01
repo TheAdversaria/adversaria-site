@@ -1,0 +1,174 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Account — Adversaria</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,400;0,600;1,400&family=Source+Serif+4:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="supabase-client.js"></script>
+</head>
+<body data-page-id="account" data-page-title="Account — Adversaria">
+
+<header class="site-header">
+  <div class="shell">
+    <a class="wordmark" href="index.html">The <span>Adversaria</span></a>
+    <nav class="site-nav">
+      <a href="index.html">Archive</a>
+      <a href="feed.html">Reading Room</a>
+      <a href="authors.html">Authors</a>
+    </nav>
+    <button class="menu-toggle-btn" id="menuToggleBtn">&#9776;</button>
+    <a class="icon-btn" href="messages.html" title="Messages" aria-label="Messages" id="messagesNavLink" style="display: none; margin-right: 8px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 2 11 13"/><path d="M22 2 15 22l-4-9-9-4z"/></svg><span class="icon-label">Messages</span></a>
+    <span id="authStatus" style="color: var(--paper-dim); font-size: 0.85rem;"></span>
+  </div>
+</header>
+<div class="side-menu-overlay" id="sideMenuOverlay"></div>
+<div class="side-menu" id="sideMenu">
+  <button class="side-menu-close" id="sideMenuClose">&times;</button>
+  <div style="clear: both; padding-top: 20px;">
+    <a href="index.html">Archive</a>
+    <a href="feed.html">Reading Room</a>
+    <a href="authors.html">Authors</a>
+    <a href="write.html">Write</a>
+    <a href="edit-profile.html">Edit Profile</a>
+    <a href="saved.html">Saved</a>
+    <a href="index.html#correspondence">Correspondence</a>
+    <a href="index.html#about">About the Keeper</a>
+  </div>
+</div>
+
+<main class="shell" style="max-width: 480px; margin: 60px auto; padding: 0 20px;">
+  <h1 style="font-family: var(--display); font-style: italic; color: var(--paper); font-size: 1.8rem;">Sign in</h1>
+
+  <div style="margin-top: 24px;">
+    <input id="emailInput" type="email" placeholder="Email" style="width: 100%; padding: 10px; margin-bottom: 10px; background: var(--ink-raised); border: 1px solid var(--ink-line); color: var(--paper); border-radius: 4px;">
+
+    <div style="position: relative; margin-bottom: 10px;">
+      <input id="passwordInput" type="password" placeholder="Password" style="width: 100%; padding: 10px; padding-right: 60px; background: var(--ink-raised); border: 1px solid var(--ink-line); color: var(--paper); border-radius: 4px; box-sizing: border-box;">
+      <button id="togglePasswordBtn" type="button" style="position: absolute; right: 8px; top: 50%; transform: translateY(-50%); background: none; border: none; color: var(--brass); font-size: 0.8rem; cursor: pointer;">Show</button>
+    </div>
+
+    <input id="usernameInput" type="text" placeholder="Username (only needed to sign up)" style="width: 100%; padding: 10px; margin-bottom: 16px; background: var(--ink-raised); border: 1px solid var(--ink-line); color: var(--paper); border-radius: 4px;">
+
+    <button id="signUpBtn" style="width: 100%; padding: 10px; margin-bottom: 8px; background: var(--brass); border: none; color: var(--ink); border-radius: 4px; cursor: pointer;">Sign Up</button>
+    <button id="signInBtn" style="width: 100%; padding: 10px; background: none; border: 1px solid var(--brass); color: var(--brass); border-radius: 4px; cursor: pointer;">Sign In</button>
+<p style="margin-top: 10px; text-align: center;"><a href="#" id="forgotPasswordLink" style="color: var(--brass); font-size: 0.85rem;">Forgot password?</a></p>
+    <p id="statusMsg" style="margin-top: 16px; color: var(--paper-dim);"></p>
+  </div>
+</main>
+
+<script src="reader.js"></script>
+<script>
+  var passwordInput = document.getElementById('passwordInput');
+  var toggleBtn = document.getElementById('togglePasswordBtn');
+  toggleBtn.addEventListener('click', function () {
+    if (passwordInput.type === 'password') {
+      passwordInput.type = 'text';
+      toggleBtn.textContent = 'Hide';
+    } else {
+      passwordInput.type = 'password';
+      toggleBtn.textContent = 'Show';
+    }
+  });
+
+  var statusMsg = document.getElementById('statusMsg');
+
+  document.getElementById('signUpBtn').addEventListener('click', async function () {
+    var email = document.getElementById('emailInput').value;
+    var password = passwordInput.value;
+    var username = document.getElementById('usernameInput').value;
+    if (!email) {
+      statusMsg.textContent = 'Please fill in email, password, and username.';
+      return;
+    }
+    if (!password) {
+      statusMsg.textContent = 'Please fill in email, password, and username.';
+      return;
+    }
+    if (!username) {
+      statusMsg.textContent = 'Please fill in email, password, and username.';
+      return;
+    }
+    var result = await sb.auth.signUp({
+      email: email,
+      password: password,
+      options: { data: { username: username } }
+    });
+    if (result.error) {
+      statusMsg.textContent = result.error.message;
+    } else {
+      var newUser = result.data.user;
+      if (newUser) {
+        await sb.from('profiles').insert({ user_id: newUser.id, username: username, chat_enabled: false });
+      }
+      statusMsg.textContent = 'Signed up. You are now signed in.';
+      showAuthStatus();
+    }
+  });
+document.getElementById('forgotPasswordLink').addEventListener('click', async function (e) {
+  e.preventDefault();
+  var email = document.getElementById('emailInput').value;
+  if (!email) {
+    statusMsg.textContent = 'Type your email above first, then click Forgot password.';
+    return;
+  }
+  var result = await sb.auth.resetPasswordForEmail(email, {
+    redirectTo: window.location.origin + '/reset-password.html'
+  });
+  if (result.error) {
+    statusMsg.textContent = result.error.message;
+  } else {
+    statusMsg.textContent = 'Check your email for a password reset link.';
+  }
+});
+  document.getElementById('signInBtn').addEventListener('click', async function () {
+    var email = document.getElementById('emailInput').value;
+    var password = passwordInput.value;
+    var result = await sb.auth.signInWithPassword({ email: email, password: password });
+    if (result.error) {
+      statusMsg.textContent = result.error.message;
+    } else {
+      statusMsg.textContent = 'Signed in! Welcome back.';
+      showAuthStatus();
+    }
+  });
+
+  async function showAuthStatus() {
+    var authStatus = document.getElementById('authStatus');
+    var result = await sb.auth.getUser();
+    var user = result.data.user;
+    if (user) {
+      var username = (user.user_metadata && user.user_metadata.username) ? user.user_metadata.username : user.email;
+      authStatus.innerHTML = 'Signed in as <strong style="color: var(--brass);">' + username + '</strong> &middot; <a href="#" id="logoutBtn" style="color: var(--brass);">Log out</a>';
+      document.getElementById('messagesNavLink').style.display = 'inline-flex';
+      document.getElementById('logoutBtn').addEventListener('click', async function (e) {
+        e.preventDefault();
+        await sb.auth.signOut();
+        window.location.reload();
+      });
+    } else {
+      authStatus.innerHTML = '<a href="account.html" style="color: var(--brass);">Sign in</a>';
+      document.getElementById('messagesNavLink').style.display = 'none';
+    }
+  }
+  showAuthStatus();
+
+  var menuBtn = document.getElementById('menuToggleBtn');
+  menuBtn.addEventListener('click', function () {
+    document.getElementById('sideMenu').classList.add('is-open');
+    document.getElementById('sideMenuOverlay').classList.add('is-open');
+  });
+  function closeSideMenu() {
+    document.getElementById('sideMenu').classList.remove('is-open');
+    document.getElementById('sideMenuOverlay').classList.remove('is-open');
+  }
+  document.getElementById('sideMenuClose').addEventListener('click', closeSideMenu);
+  document.getElementById('sideMenuOverlay').addEventListener('click', closeSideMenu);
+</script>
+
+</body>
+</html>

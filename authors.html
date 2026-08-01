@@ -1,0 +1,181 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Authors — Adversaria</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,400;0,600;1,400&family=Source+Serif+4:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="supabase-client.js"></script>
+</head>
+<body data-page-id="authors" data-page-title="Authors — Adversaria">
+
+<header class="site-header">
+  <div class="shell">
+    <a class="wordmark" href="index.html">The <span>Adversaria</span></a>
+    <nav class="site-nav">
+      <a href="index.html">Archive</a>
+      <a href="feed.html">Reading Room</a>
+      <a href="authors.html" class="is-active">Authors</a>
+    </nav>
+    <button class="menu-toggle-btn" id="menuToggleBtn">&#9776;</button>
+    <a class="icon-btn" href="messages.html" title="Messages" aria-label="Messages" id="messagesNavLink" style="display: none; margin-right: 8px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 2 11 13"/><path d="M22 2 15 22l-4-9-9-4z"/></svg><span class="icon-label">Messages</span></a>
+    <span id="authStatus" style="color: var(--paper-dim); font-size: 0.85rem;"></span>
+  </div>
+</header>
+<div class="side-menu-overlay" id="sideMenuOverlay"></div>
+<div class="side-menu" id="sideMenu">
+  <button class="side-menu-close" id="sideMenuClose">&times;</button>
+  <div style="clear: both; padding-top: 20px;">
+    <a href="index.html">Archive</a>
+    <a href="feed.html">Reading Room</a>
+    <a href="authors.html">Authors</a>
+    <a href="write.html">Write</a>
+    <a href="edit-profile.html">Edit Profile</a>
+    <a href="account.html">Account</a>
+    <a href="saved.html">Saved</a>
+    <a href="index.html#correspondence">Correspondence</a>
+    <a href="index.html#about">About the Keeper</a>
+  </div>
+</div>
+
+<main class="shell" style="max-width: 720px; margin: 60px auto; padding: 0 20px;">
+  <h1 style="font-family: var(--display); font-style: italic; color: var(--paper); font-size: 1.8rem;">Authors</h1>
+  <input id="authorSearch" type="text" placeholder="Search authors..." style="width: 100%; padding: 10px; margin-top: 16px; background: var(--ink-raised); border: 1px solid var(--ink-line); color: var(--paper); border-radius: 4px;">
+ <div style="margin-top: 12px;">
+  <button id="sortAZ" style="padding: 6px 14px; background: var(--brass); border: none; color: var(--ink); border-radius: 4px; cursor: pointer; margin-right: 8px;">A–Z</button>
+  <button id="sortCount" style="padding: 6px 14px; background: none; border: 1px solid var(--brass); color: var(--brass); border-radius: 4px; cursor: pointer;">Most Entries</button>
+</div>
+  <div id="authorsList" style="margin-top: 30px;"></div>
+</main>
+
+<script src="reader.js"></script>
+<script>
+  function escapeHtml(s) {
+    var d = document.createElement('div');
+    d.textContent = s;
+    return d.innerHTML;
+  }
+
+  var currentSort = 'az';
+
+function renderAuthorsList(counts) {
+  var list = document.getElementById('authorsList');
+  var names = Object.keys(counts);
+  if (currentSort === 'az') {
+    names.sort();
+  } else {
+    names.sort(function (a, b) { return counts[b] - counts[a]; });
+  }
+  var html = '';
+  for (var j = 0; j < names.length; j++) {
+    var n = names[j];
+    var count = counts[n];
+    var label = count === 1 ? ' entry' : ' entries';
+    html += '<a href="profile.html?username=' + encodeURIComponent(n) + '" style="display: block; padding: 16px 0; border-bottom: 1px solid var(--ink-line); text-decoration: none;">';
+    html += '<span style="font-family: var(--display); color: var(--paper); font-size: 1.2rem;">' + escapeHtml(n) + '</span>';
+    html += '<span style="color: var(--dust); font-size: 0.8rem; margin-left: 10px;">' + count + label + '</span>';
+    html += '</a>';
+  }
+  list.innerHTML = html;
+}
+
+var authorCounts = {};
+
+async function loadAuthors() {
+  var list = document.getElementById('authorsList');
+  var result = await sb.from('posts').select('author_username');
+  var posts = result.data;
+  var error = result.error;
+
+  if (error) {
+    list.innerHTML = '<p style="color: var(--paper-dim);">Could not load authors.</p>';
+    return;
+  }
+  if (!posts || posts.length === 0) {
+    list.innerHTML = '<p style="color: var(--paper-dim);">No authors yet.</p>';
+    return;
+  }
+
+  for (var i = 0; i < posts.length; i++) {
+    var name = posts[i].author_username;
+    if (authorCounts[name]) {
+      authorCounts[name] = authorCounts[name] + 1;
+    } else {
+      authorCounts[name] = 1;
+    }
+  }
+  renderAuthorsList(authorCounts);
+}
+loadAuthors();
+
+document.getElementById('sortAZ').addEventListener('click', function () {
+  currentSort = 'az';
+  this.style.background = 'var(--brass)';
+  this.style.color = 'var(--ink)';
+  this.style.border = 'none';
+  var other = document.getElementById('sortCount');
+  other.style.background = 'none';
+  other.style.color = 'var(--brass)';
+  other.style.border = '1px solid var(--brass)';
+  renderAuthorsList(authorCounts);
+});
+
+document.getElementById('sortCount').addEventListener('click', function () {
+  currentSort = 'count';
+  this.style.background = 'var(--brass)';
+  this.style.color = 'var(--ink)';
+  this.style.border = 'none';
+  var other = document.getElementById('sortAZ');
+  other.style.background = 'none';
+  other.style.color = 'var(--brass)';
+  other.style.border = '1px solid var(--brass)';
+  renderAuthorsList(authorCounts);
+});
+  document.getElementById('authorSearch').addEventListener('input', function () {
+  var query = this.value.toLowerCase();
+  var items = document.querySelectorAll('#authorsList a');
+  for (var i = 0; i < items.length; i++) {
+    var name = items[i].textContent.toLowerCase();
+    items[i].style.display = name.indexOf(query) === -1 ? 'none' : 'block';
+  }
+});
+
+  async function showAuthStatus() {
+    var authStatus = document.getElementById('authStatus');
+    var result = await sb.auth.getUser();
+    var user = result.data.user;
+    if (user) {
+      var username = (user.user_metadata && user.user_metadata.username) ? user.user_metadata.username : user.email;
+      authStatus.innerHTML = 'Signed in as <strong style="color: var(--brass);">' + username + '</strong> &middot; <a href="#" id="logoutBtn" style="color: var(--brass);">Log out</a>';
+      document.getElementById('messagesNavLink').style.display = 'inline-flex';
+      document.getElementById('logoutBtn').addEventListener('click', async function (e) {
+        e.preventDefault();
+        await sb.auth.signOut();
+        window.location.reload();
+      });
+    } else {
+      authStatus.innerHTML = '<a href="account.html" style="color: var(--brass);">Sign in</a>';
+      document.getElementById('messagesNavLink').style.display = 'none';
+    }
+  }
+  showAuthStatus();
+
+  var menuBtn = document.getElementById('menuToggleBtn');
+  menuBtn.addEventListener('click', function () {
+    document.getElementById('sideMenu').classList.add('is-open');
+    document.getElementById('sideMenuOverlay').classList.add('is-open');
+  });
+  function closeSideMenu() {
+    document.getElementById('sideMenu').classList.remove('is-open');
+    document.getElementById('sideMenuOverlay').classList.remove('is-open');
+  }
+  document.getElementById('sideMenuClose').addEventListener('click', closeSideMenu);
+  document.getElementById('sideMenuOverlay').addEventListener('click', closeSideMenu);
+</script>
+
+</body>
+</html>

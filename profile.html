@@ -1,0 +1,548 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Profile — Adversaria</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,400;0,600;1,400&family=Source+Serif+4:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+<style>.profileCard { transition: border-color .2s ease; } .profileCard:hover { border-color: var(--brass-dim) !important; }</style>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="supabase-client.js"></script>
+</head>
+<body data-page-id="profile" data-page-title="Profile — Adversaria">
+
+<header class="site-header">
+  <div class="shell">
+    <a class="wordmark" href="index.html">The <span>Adversaria</span></a>
+    <nav class="site-nav">
+      <a href="index.html">Archive</a>
+      <a href="feed.html">Reading Room</a>
+      <a href="authors.html">Authors</a>
+    </nav>
+    <button class="menu-toggle-btn" id="menuToggleBtn">&#9776;</button>
+    <a class="icon-btn" href="messages.html" title="Messages" aria-label="Messages" id="messagesNavLink" style="display: none; margin-right: 8px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 2 11 13"/><path d="M22 2 15 22l-4-9-9-4z"/></svg><span class="icon-label">Messages</span></a>
+    <span id="authStatus" style="color: var(--paper-dim); font-size: 0.85rem;"></span>
+  </div>
+</header>
+<div class="side-menu-overlay" id="sideMenuOverlay"></div>
+<div class="side-menu" id="sideMenu">
+  <button class="side-menu-close" id="sideMenuClose">&times;</button>
+  <div style="clear: both; padding-top: 20px;">
+    <a href="index.html">Archive</a>
+    <a href="feed.html">Reading Room</a>
+    <a href="authors.html">Authors</a>
+    <a href="edit-profile.html">Edit Profile</a>
+    <a href="account.html">Account</a>
+    <a href="saved.html">Saved</a>
+    <a href="index.html#correspondence">Correspondence</a>
+    <a href="index.html#about">About the Keeper</a>
+  </div>
+</div>
+
+<main class="shell" style="max-width: 860px; margin: 60px auto; padding: 0 20px;">
+  <div id="profileHead" style="display: flex; align-items: flex-start; gap: 28px; padding-bottom: 26px; border-bottom: 1px solid var(--ink-line); flex-wrap: wrap;">
+    <img id="profileAvatar" src="" style="width: 128px; height: 128px; border-radius: 50%; object-fit: cover; display: none; border: 2px solid var(--brass-dim); flex: none;">
+    <div id="profileAvatarPlaceholder" style="width: 128px; height: 128px; border-radius: 50%; background: var(--ink-raised); border: 2px solid var(--ink-line); display: flex; align-items: center; justify-content: center; font-family: var(--display); font-style: italic; font-size: 2.6rem; color: var(--dust); flex: none;"></div>
+    <div style="flex: 1; min-width: 220px; padding-top: 4px;">
+      <h1 id="profileTitle" style="font-family: var(--display); font-style: italic; color: var(--paper); font-size: 1.9rem; margin: 0;"></h1>
+
+      <div id="profileStats" style="display: flex; gap: 26px; margin-top: 12px; flex-wrap: wrap;">
+        <div><strong id="statEntries" style="color: var(--paper); font-family: var(--display); font-size: 1.05rem;">0</strong> <span style="color: var(--dust); font-size: 0.8rem;">entries</span></div>
+        <div><strong id="statFollowers" style="color: var(--paper); font-family: var(--display); font-size: 1.05rem;">0</strong> <span style="color: var(--dust); font-size: 0.8rem;">followers</span></div>
+        <div><strong id="statFollowing" style="color: var(--paper); font-family: var(--display); font-size: 1.05rem;">0</strong> <span style="color: var(--dust); font-size: 0.8rem;">following</span></div>
+        <div id="statJoined" style="color: var(--dust); font-size: 0.8rem; align-self: center;"></div>
+      </div>
+
+      <div style="display: flex; align-items: center; gap: 10px; margin-top: 16px; flex-wrap: wrap;">
+        <a id="editProfileLink" href="edit-profile.html" style="display: none; padding: 7px 16px; border: 1px solid var(--brass-dim); color: var(--brass); border-radius: 4px; font-size: 0.8rem; white-space: nowrap;">Edit Profile</a>
+        <a id="messageLink" href="#" style="display: none; padding: 7px 16px; background: var(--brass); border: 1px solid var(--brass); color: var(--ink); border-radius: 4px; font-size: 0.8rem; white-space: nowrap; text-decoration: none;">Message</a>
+        <button id="followBtn" type="button" style="display: none; padding: 7px 16px; border: 1px solid var(--brass-dim); background: none; color: var(--brass); border-radius: 4px; font-size: 0.8rem; cursor: pointer; white-space: nowrap;">Follow</button>
+        <button id="shareProfileBtn" type="button" style="display: inline-flex; align-items: center; gap: 6px; padding: 7px 14px; border: 1px solid var(--ink-line); background: none; color: var(--paper-dim); border-radius: 4px; font-size: 0.8rem; cursor: pointer; white-space: nowrap;">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+          <span id="shareProfileLabel">Share</span>
+        </button>
+      </div>
+
+      <p id="profileBio" style="color: var(--paper-dim); margin-top: 16px; max-width: 54ch; line-height: 1.6;"></p>
+    </div>
+  </div>
+  <div id="postsList" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 16px; margin-top: 30px;"></div>
+</main>
+
+<div class="modal-overlay" id="postModalOverlay" hidden>
+  <div style="width: min(600px, 100%); max-height: 86vh; overflow-y: auto; background: var(--ink-raised); border: 1px solid var(--ink-line); border-radius: 8px; position: relative;">
+    <button id="postModalClose" aria-label="Close" style="position: absolute; top: 12px; right: 14px; background: rgba(0,0,0,0.45); border: none; color: var(--paper); width: 30px; height: 30px; border-radius: 50%; font-size: 1.2rem; line-height: 1; cursor: pointer; z-index: 2;">&times;</button>
+    <div id="postModalVideoWrap" style="display: none; background: #000;">
+      <iframe id="postModalVideoFrame" src="" style="width: 100%; aspect-ratio: 16 / 9; border: none; display: block;" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+    </div>
+    <div id="postModalImageWrap" style="display: none; position: relative;">
+      <div id="postModalGalleryTrack" style="display: flex; overflow-x: auto; scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch;"></div>
+      <button id="postModalPrev" aria-label="Previous image" style="display: none; align-items: center; justify-content: center; position: absolute; left: 8px; top: 50%; transform: translateY(-50%); width: 32px; height: 32px; border-radius: 50%; background: rgba(0,0,0,0.5); color: white; border: none; cursor: pointer; font-size: 1.1rem; line-height: 1;">&#8249;</button>
+      <button id="postModalNext" aria-label="Next image" style="display: none; align-items: center; justify-content: center; position: absolute; right: 8px; top: 50%; transform: translateY(-50%); width: 32px; height: 32px; border-radius: 50%; background: rgba(0,0,0,0.5); color: white; border: none; cursor: pointer; font-size: 1.1rem; line-height: 1;">&#8250;</button>
+      <div id="postModalDots" style="display: none; gap: 6px; position: absolute; bottom: 10px; left: 50%; transform: translateX(-50%);"></div>
+    </div>
+    <div style="padding: 24px;">
+      <h2 id="postModalTitle" style="font-family: var(--display); font-style: italic; color: var(--paper); font-size: 1.5rem; margin: 0;"></h2>
+      <p id="postModalContent" style="color: var(--paper-dim); margin-top: 14px; white-space: pre-wrap; line-height: 1.7;"></p>
+      <div style="display: flex; gap: 10px; margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--ink-line);">
+        <button id="postModalLikeBtn" style="background: none; border: 1px solid var(--brass); color: var(--brass); padding: 6px 14px; border-radius: 4px; cursor: pointer;">&#9825; <span id="postModalLikeCount">0</span></button>
+        <button id="postModalSaveBtn" style="background: none; border: 1px solid var(--brass); color: var(--brass); padding: 6px 14px; border-radius: 4px; cursor: pointer;">Save</button>
+      </div>
+      <div style="margin-top: 18px;">
+        <div id="postModalCommentsList"></div>
+        <input type="text" id="postModalCommentInput" placeholder="Write a comment..." style="width: 100%; padding: 9px; margin-top: 10px; background: var(--ink); border: 1px solid var(--ink-line); color: var(--paper); border-radius: 4px; box-sizing: border-box;">
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="reader.js"></script>
+<script>
+  var params = new URLSearchParams(window.location.search);
+  var username = params.get('username');
+  document.getElementById('profileTitle').textContent = username ? username : 'Unknown';
+
+  function escapeHtml(s) {
+    var d = document.createElement('div');
+    d.textContent = s;
+    return d.innerHTML;
+  }
+
+  function formatJoinDate(dateStr) {
+    if (!dateStr) { return ''; }
+    var d = new Date(dateStr);
+    if (isNaN(d.getTime())) { return ''; }
+    var months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+    return 'Joined ' + months[d.getMonth()] + ' ' + d.getFullYear();
+  }
+
+  async function loadProfileInfo() {
+    var result = await sb.from('profiles').select('*').eq('username', username);
+    var rows = result.data;
+    var initial = username ? username.charAt(0).toUpperCase() : '?';
+    if (rows && rows.length > 0) {
+      var profile = rows[0];
+      if (profile.bio) {
+        document.getElementById('profileBio').textContent = profile.bio;
+      }
+      if (profile.avatar_url) {
+        var img = document.getElementById('profileAvatar');
+        img.src = profile.avatar_url;
+        img.style.display = 'block';
+        document.getElementById('profileAvatarPlaceholder').style.display = 'none';
+      } else {
+        document.getElementById('profileAvatarPlaceholder').textContent = initial;
+      }
+      var joined = formatJoinDate(profile.created_at);
+      if (joined) {
+        document.getElementById('statJoined').textContent = joined;
+      }
+    } else {
+      document.getElementById('profileAvatarPlaceholder').textContent = initial;
+    }
+  }
+  loadProfileInfo();
+
+  document.getElementById('shareProfileBtn').addEventListener('click', async function () {
+    var url = window.location.href;
+    var label = document.getElementById('shareProfileLabel');
+
+    if (navigator.share) {
+      try {
+        await navigator.share({ title: username + ' on The Adversaria', url: url });
+      } catch (e) {
+        // person cancelled the share sheet, do nothing
+      }
+      return;
+    }
+
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      try {
+        await navigator.clipboard.writeText(url);
+        label.textContent = 'Link copied';
+        setTimeout(function () { label.textContent = 'Share'; }, 1500);
+      } catch (e) {
+        window.prompt('Copy this link:', url);
+      }
+      return;
+    }
+
+    window.prompt('Copy this link:', url);
+  });
+
+  var currentUser = null;
+  var loadedPosts = [];
+
+  async function checkIsOwnProfile() {
+    var result = await sb.auth.getUser();
+    var user = result.data.user;
+    currentUser = user;
+    if (!user) { return; }
+
+    var myUsername = user.email;
+    if (user.user_metadata && user.user_metadata.username) {
+      myUsername = user.user_metadata.username;
+    }
+
+    if (myUsername === username) {
+      document.getElementById('editProfileLink').style.display = 'inline-block';
+      return;
+    }
+
+    var msgBtn = document.getElementById('messageLink');
+    msgBtn.style.display = 'inline-block';
+    msgBtn.href = 'messages.html?with=' + encodeURIComponent(username);
+
+    var followBtn = document.getElementById('followBtn');
+    followBtn.style.display = 'inline-block';
+
+    var existingFollow = await sb.from('follows').select('id').eq('follower_id', user.id).eq('following_username', username);
+    var isFollowing = existingFollow.data && existingFollow.data.length > 0;
+    followBtn.textContent = isFollowing ? 'Following' : 'Follow';
+    followBtn.dataset.following = isFollowing ? 'true' : 'false';
+
+    followBtn.addEventListener('click', async function () {
+      var nowFollowing = followBtn.dataset.following === 'true';
+      if (nowFollowing) {
+        await sb.from('follows').delete().eq('follower_id', user.id).eq('following_username', username);
+        followBtn.textContent = 'Follow';
+        followBtn.dataset.following = 'false';
+      } else {
+        var targetResult = await sb.from('profiles').select('user_id').eq('username', username);
+        var followingId = (targetResult.data && targetResult.data.length > 0) ? targetResult.data[0].user_id : null;
+        if (!followingId) {
+          alert('Could not find that person.');
+          return;
+        }
+        await sb.from('follows').insert({
+          follower_id: user.id,
+          follower_username: myUsername,
+          following_id: followingId,
+          following_username: username
+        });
+        followBtn.textContent = 'Following';
+        followBtn.dataset.following = 'true';
+      }
+      loadFollowCounts();
+    });
+  }
+  checkIsOwnProfile();
+
+  async function loadFollowCounts() {
+    var followersResult = await sb.from('follows').select('id').eq('following_username', username);
+    var followingResult = await sb.from('follows').select('id').eq('follower_username', username);
+    document.getElementById('statFollowers').textContent = followersResult.data ? followersResult.data.length : 0;
+    document.getElementById('statFollowing').textContent = followingResult.data ? followingResult.data.length : 0;
+  }
+  loadFollowCounts();
+
+  function getVideoEmbedUrl(url) {
+    if (!url) { return null; }
+    var youtubeMatch = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([a-zA-Z0-9_-]{11})/);
+    if (youtubeMatch) {
+      return 'https://www.youtube.com/embed/' + youtubeMatch[1];
+    }
+    var vimeoMatch = url.match(/vimeo\.com\/(?:video\/)?(\d+)/);
+    if (vimeoMatch) {
+      return 'https://player.vimeo.com/video/' + vimeoMatch[1];
+    }
+    return null;
+  }
+
+  function buildCardHtml(p, likeCount) {
+    var out = '';
+    out += '<div class="profileCard" data-post-id="' + p.id + '" style="border: 1px solid var(--ink-line); border-radius: 8px; overflow: hidden; background: var(--ink-raised); cursor: pointer;">';
+    var hasMultiple = p.image_urls && p.image_urls.length > 1;
+    var badgeHtml = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" style="position: absolute; top: 8px; right: 8px; filter: drop-shadow(0 1px 2px rgba(0,0,0,0.7));"><rect x="7" y="7" width="14" height="14" rx="2"/><path d="M3 15V5a2 2 0 0 1 2-2h10"/></svg>';
+    if (getVideoEmbedUrl(p.video_url)) {
+      out += '<div style="aspect-ratio: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; padding: 14px; background: linear-gradient(135deg, var(--ink), var(--ink-raised)); box-sizing: border-box;">';
+      out += '<svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="var(--brass)" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="M10 8l6 4-6 4z" fill="var(--brass)" stroke="none"/></svg>';
+      out += '<span style="font-family: var(--display); font-style: italic; color: var(--brass); font-size: 1rem; text-align: center; line-height: 1.3;">' + escapeHtml(p.title) + '</span>';
+      out += '</div>';
+    } else if (p.image_url) {
+      out += '<div style="aspect-ratio: 1; overflow: hidden; position: relative;"><img src="' + escapeHtml(p.image_url) + '" style="width: 100%; height: 100%; object-fit: cover; display: block;">' + (hasMultiple ? badgeHtml : '') + '</div>';
+    } else {
+      out += '<div style="aspect-ratio: 1; display: flex; align-items: center; justify-content: center; padding: 18px; background: linear-gradient(135deg, var(--ink), var(--ink-raised)); box-sizing: border-box;">';
+      out += '<span style="font-family: var(--display); font-style: italic; color: var(--brass); font-size: 1.15rem; text-align: center; line-height: 1.3;">' + escapeHtml(p.title) + '</span>';
+      out += '</div>';
+    }
+    out += '<div style="padding: 12px 14px;">';
+    out += '<h3 style="font-family: var(--display); color: var(--paper); font-size: 1rem; margin: 0;">' + escapeHtml(p.title) + '</h3>';
+    out += '<p style="color: var(--paper-dim); font-size: 0.82rem; margin-top: 6px; line-height: 1.5; max-height: 2.6em; overflow: hidden;">' + escapeHtml(p.content) + '</p>';
+    out += '<span style="color: var(--dust); font-size: 0.75rem; margin-top: 10px; display: block;">&#9825; ' + likeCount + '</span>';
+    out += '</div></div>';
+    return out;
+  }
+
+  async function refreshModalLikeCount(postId) {
+    var result = await sb.from('likes').select('id').eq('post_id', postId);
+    var count = 0;
+    if (result.data) { count = result.data.length; }
+    document.getElementById('postModalLikeCount').textContent = count;
+  }
+
+  async function refreshModalSaveState(postId) {
+    var saveBtn = document.getElementById('postModalSaveBtn');
+    saveBtn.textContent = 'Save';
+    if (!currentUser) { return; }
+    var existing = await sb.from('saves').select('id').eq('post_id', postId).eq('user_id', currentUser.id);
+    if (existing.data && existing.data.length > 0) {
+      saveBtn.textContent = 'Saved';
+    }
+  }
+
+  async function loadModalComments(postId) {
+    var listEl = document.getElementById('postModalCommentsList');
+    var result = await sb.from('comments').select('*').eq('post_id', postId).order('created_at', { ascending: true });
+    var comments = result.data;
+    if (!comments) { comments = []; }
+    var html = '';
+    for (var i = 0; i < comments.length; i++) {
+      html += '<p style="color: var(--paper-dim); font-size: 0.85rem; margin-top: 6px;"><strong style="color: var(--brass);">' + escapeHtml(comments[i].author_username) + '</strong>: ' + escapeHtml(comments[i].content) + '</p>';
+    }
+    listEl.innerHTML = html;
+  }
+
+  var currentModalPostId = null;
+
+  function openPostModal(postId) {
+    var post = null;
+    for (var i = 0; i < loadedPosts.length; i++) {
+      if (String(loadedPosts[i].id) === String(postId)) { post = loadedPosts[i]; break; }
+    }
+    if (!post) { return; }
+    currentModalPostId = post.id;
+
+    var videoWrap = document.getElementById('postModalVideoWrap');
+    var videoFrame = document.getElementById('postModalVideoFrame');
+    var videoEmbedUrl = getVideoEmbedUrl(post.video_url);
+
+    var images = [];
+    if (post.image_urls && post.image_urls.length > 0) {
+      images = post.image_urls;
+    } else if (post.image_url) {
+      images = [post.image_url];
+    }
+
+    var imgWrap = document.getElementById('postModalImageWrap');
+    var track = document.getElementById('postModalGalleryTrack');
+    var prevBtn = document.getElementById('postModalPrev');
+    var nextBtn = document.getElementById('postModalNext');
+
+    if (videoEmbedUrl) {
+      videoFrame.src = videoEmbedUrl;
+      videoWrap.style.display = 'block';
+      imgWrap.style.display = 'none';
+    } else {
+      videoFrame.src = '';
+      videoWrap.style.display = 'none';
+      var dotsWrap = document.getElementById('postModalDots');
+
+      if (images.length > 0) {
+        var trackHtml = '';
+        for (var k = 0; k < images.length; k++) {
+          trackHtml += '<img src="' + escapeHtml(images[k]) + '" style="flex: none; width: 100%; scroll-snap-align: start; display: block; aspect-ratio: 4 / 3; object-fit: cover;">';
+        }
+        track.innerHTML = trackHtml;
+        track.scrollLeft = 0;
+
+        var showNav = images.length > 1;
+        prevBtn.style.display = showNav ? 'flex' : 'none';
+        nextBtn.style.display = showNav ? 'flex' : 'none';
+
+        var dotsHtml = '';
+        for (var m = 0; m < images.length; m++) {
+          dotsHtml += '<span class="modalGalleryDot" style="width: 6px; height: 6px; border-radius: 50%; display: inline-block; background: ' + (m === 0 ? 'rgba(255,255,255,0.9)' : 'rgba(255,255,255,0.4)') + ';"></span>';
+        }
+        dotsWrap.innerHTML = dotsHtml;
+        dotsWrap.style.display = showNav ? 'flex' : 'none';
+
+        imgWrap.style.display = 'block';
+      } else {
+        imgWrap.style.display = 'none';
+      }
+    }
+
+    document.getElementById('postModalTitle').textContent = post.title;
+    document.getElementById('postModalContent').textContent = post.content;
+
+    refreshModalLikeCount(post.id);
+    refreshModalSaveState(post.id);
+    loadModalComments(post.id);
+
+    document.getElementById('postModalOverlay').hidden = false;
+  }
+
+  document.getElementById('postModalPrev').addEventListener('click', function () {
+    var track = document.getElementById('postModalGalleryTrack');
+    track.scrollBy({ left: -track.clientWidth, behavior: 'smooth' });
+  });
+  document.getElementById('postModalNext').addEventListener('click', function () {
+    var track = document.getElementById('postModalGalleryTrack');
+    track.scrollBy({ left: track.clientWidth, behavior: 'smooth' });
+  });
+  document.getElementById('postModalGalleryTrack').addEventListener('scroll', function () {
+    var track = this;
+    var dots = document.querySelectorAll('#postModalDots .modalGalleryDot');
+    if (dots.length === 0) { return; }
+    var index = Math.round(track.scrollLeft / track.clientWidth);
+    for (var i = 0; i < dots.length; i++) {
+      dots[i].style.background = (i === index) ? 'rgba(255,255,255,0.9)' : 'rgba(255,255,255,0.4)';
+    }
+  });
+
+  function closePostModal() {
+    document.getElementById('postModalOverlay').hidden = true;
+    document.getElementById('postModalVideoFrame').src = '';
+    currentModalPostId = null;
+  }
+
+  document.getElementById('postsList').addEventListener('click', function (e) {
+    var card = e.target.closest('[data-post-id]');
+    if (!card) { return; }
+    openPostModal(card.getAttribute('data-post-id'));
+  });
+
+  document.getElementById('postModalClose').addEventListener('click', closePostModal);
+  document.getElementById('postModalOverlay').addEventListener('click', function (e) {
+    if (e.target === this) { closePostModal(); }
+  });
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape') { closePostModal(); }
+  });
+
+  document.getElementById('postModalLikeBtn').addEventListener('click', async function () {
+    if (!currentUser) { alert('Sign in to like posts.'); return; }
+    if (!currentModalPostId) { return; }
+    var existing = await sb.from('likes').select('id').eq('post_id', currentModalPostId).eq('user_id', currentUser.id);
+    if (existing.data && existing.data.length > 0) {
+      await sb.from('likes').delete().eq('post_id', currentModalPostId).eq('user_id', currentUser.id);
+    } else {
+      await sb.from('likes').insert({ post_id: currentModalPostId, user_id: currentUser.id });
+    }
+    refreshModalLikeCount(currentModalPostId);
+    loadUserPosts();
+  });
+
+  document.getElementById('postModalSaveBtn').addEventListener('click', async function () {
+    if (!currentUser) { alert('Sign in to save posts.'); return; }
+    if (!currentModalPostId) { return; }
+    var btn = this;
+    var existing = await sb.from('saves').select('id').eq('post_id', currentModalPostId).eq('user_id', currentUser.id);
+    if (existing.data && existing.data.length > 0) {
+      await sb.from('saves').delete().eq('post_id', currentModalPostId).eq('user_id', currentUser.id);
+      btn.textContent = 'Save';
+    } else {
+      await sb.from('saves').insert({ post_id: currentModalPostId, user_id: currentUser.id });
+      btn.textContent = 'Saved';
+    }
+  });
+
+  document.getElementById('postModalCommentInput').addEventListener('keypress', async function (e) {
+    if (e.key === 'Enter') {
+      if (!currentUser) { alert('Sign in to comment.'); return; }
+      if (!currentModalPostId) { return; }
+      var content = this.value.trim();
+      if (!content) { return; }
+      var uname = currentUser.email;
+      if (currentUser.user_metadata && currentUser.user_metadata.username) {
+        uname = currentUser.user_metadata.username;
+      }
+      await sb.from('comments').insert({
+        post_id: currentModalPostId,
+        user_id: currentUser.id,
+        author_username: uname,
+        content: content
+      });
+      this.value = '';
+      loadModalComments(currentModalPostId);
+    }
+  });
+
+  async function loadUserPosts() {
+    var list = document.getElementById('postsList');
+    var result = await sb.from('posts').select('*').eq('author_username', username).order('created_at', { ascending: false });
+    var posts = result.data;
+    var error = result.error;
+
+    if (error) {
+      list.innerHTML = '<p style="color: var(--paper-dim); grid-column: 1 / -1;">Could not load posts.</p>';
+      return;
+    }
+    if (!posts || posts.length === 0) {
+      list.innerHTML = '<p style="color: var(--paper-dim); grid-column: 1 / -1;">Nothing published yet.</p>';
+      document.getElementById('statEntries').textContent = '0';
+      return;
+    }
+
+    document.getElementById('statEntries').textContent = posts.length;
+    loadedPosts = posts;
+
+    var ids = [];
+    for (var i = 0; i < posts.length; i++) {
+      ids.push(posts[i].id);
+    }
+
+    var likesResult = await sb.from('likes').select('post_id').in('post_id', ids);
+    var likeCounts = {};
+    if (likesResult.data) {
+      for (var j = 0; j < likesResult.data.length; j++) {
+        var pid = likesResult.data[j].post_id;
+        if (likeCounts[pid]) {
+          likeCounts[pid] = likeCounts[pid] + 1;
+        } else {
+          likeCounts[pid] = 1;
+        }
+      }
+    }
+
+    var html = '';
+    for (var k = 0; k < posts.length; k++) {
+      var count = likeCounts[posts[k].id] ? likeCounts[posts[k].id] : 0;
+      html += buildCardHtml(posts[k], count);
+    }
+    list.innerHTML = html;
+  }
+  loadUserPosts();
+
+  async function showAuthStatus() {
+    var authStatus = document.getElementById('authStatus');
+    var result = await sb.auth.getUser();
+    var user = result.data.user;
+    if (user) {
+      var uname = user.email;
+      if (user.user_metadata && user.user_metadata.username) {
+        uname = user.user_metadata.username;
+      }
+      authStatus.innerHTML = 'Signed in as <strong style="color: var(--brass);">' + uname + '</strong> &middot; <a href="#" id="logoutBtn" style="color: var(--brass);">Log out</a>';
+      document.getElementById('messagesNavLink').style.display = 'inline-flex';
+      document.getElementById('logoutBtn').addEventListener('click', async function (e) {
+        e.preventDefault();
+        await sb.auth.signOut();
+        window.location.reload();
+      });
+    } else {
+      authStatus.innerHTML = '<a href="account.html" style="color: var(--brass);">Sign in</a>';
+      document.getElementById('messagesNavLink').style.display = 'none';
+    }
+  }
+  showAuthStatus();
+
+  var menuBtn = document.getElementById('menuToggleBtn');
+  menuBtn.addEventListener('click', function () {
+    document.getElementById('sideMenu').classList.add('is-open');
+    document.getElementById('sideMenuOverlay').classList.add('is-open');
+  });
+  function closeSideMenu() {
+    document.getElementById('sideMenu').classList.remove('is-open');
+    document.getElementById('sideMenuOverlay').classList.remove('is-open');
+  }
+  document.getElementById('sideMenuClose').addEventListener('click', closeSideMenu);
+  document.getElementById('sideMenuOverlay').addEventListener('click', closeSideMenu);
+</script>
+
+</body>
+</html>
