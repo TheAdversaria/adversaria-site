@@ -6,10 +6,74 @@
 <title>Reading Room — Adversaria</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,400;0,600;1,400&family=Source+Serif+4:wght@400;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,300;0,400;0,600;1,400&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="supabase-client.js"></script>
+<style>
+  .mo-desktop { display: block; }
+  .mo-mobile { display: none; }
+
+  @media (max-width: 640px) {
+    .mo-desktop { display: none; }
+
+    .mo-mobile {
+      --bg-app: #1C1814;
+      --surface: #262019;
+      --cream: #F3E6D3;
+      --muted: #A9977F;
+      --amber: #E8A15C;
+      --divider: rgba(243,230,211,0.08);
+      display: block;
+      font-family: 'Inter', sans-serif;
+      background: var(--bg-app);
+      margin: -20px -20px 0;
+      padding-top: 4px;
+    }
+
+    .mo-header { padding: 10px 22px 12px; border-bottom: 1px solid var(--divider); display: flex; align-items: flex-start; justify-content: space-between; }
+    .mo-wordmark { font-family: 'Fraunces', serif; font-style: italic; font-weight: 500; font-size: 22px; color: var(--cream); }
+    .mo-sub { font-size: 11.5px; color: var(--muted); margin-top: 2px; font-weight: 500; }
+    .mo-header-icons { display: flex; gap: 14px; padding-top: 5px; }
+    .mo-icon-btn { position: relative; width: 20px; height: 20px; color: var(--cream); display: inline-flex; align-items: center; justify-content: center; }
+    .mo-icon-btn svg { width: 100%; height: 100%; display: block; }
+    .mo-badge { position: absolute; top: -4px; right: -5px; width: 13px; height: 13px; border-radius: 50%; background: var(--amber); color: #1C1410; font-size: 8px; font-weight: 700; display: flex; align-items: center; justify-content: center; font-family: 'JetBrains Mono', monospace; }
+
+    .mo-toggle-row { display: flex; gap: 20px; padding: 12px 22px 4px; border-bottom: 1px solid var(--divider); }
+    .mo-toggle { font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 0.5px; color: var(--muted); padding-bottom: 10px; position: relative; background: none; border: none; cursor: pointer; }
+    .mo-toggle.on { color: var(--cream); font-weight: 600; }
+    .mo-toggle.on::after { content: ''; position: absolute; left: 0; right: 0; bottom: -1px; height: 2px; background: var(--amber); border-radius: 2px; }
+
+    .mo-label { padding: 13px 22px 8px; font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: 1px; text-transform: uppercase; color: var(--muted); }
+
+    .mo-reels-strip { display: flex; gap: 8px; padding: 0 22px 14px; overflow-x: auto; }
+    .mo-reel-card { flex: none; width: 100px; height: 145px; border-radius: 14px; position: relative; overflow: hidden; display: flex; flex-direction: column; justify-content: flex-end; padding: 8px; background: linear-gradient(200deg, var(--amber), #3a2010 80%); text-decoration: none; }
+    .mo-reel-play { position: absolute; top: 9px; right: 9px; width: 19px; height: 19px; border-radius: 50%; background: rgba(0,0,0,0.35); backdrop-filter: blur(4px); display: flex; align-items: center; justify-content: center; }
+    .mo-reel-play svg { width: 8px; height: 8px; }
+    .mo-reel-name { font-size: 10px; font-weight: 600; color: var(--cream); text-shadow: 0 2px 6px rgba(0,0,0,0.5); }
+    .mo-reel-meta { font-family: 'JetBrains Mono', monospace; font-size: 8.5px; color: rgba(243,230,211,0.75); margin-top: 2px; }
+
+    .mo-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2px; padding: 0 0 90px; }
+    .mo-cell { aspect-ratio: 1/1; position: relative; overflow: hidden; background: linear-gradient(160deg, var(--amber), #5C3A22); border: none; padding: 0; cursor: pointer; }
+    .mo-cell img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .mo-cell .mo-cell-title { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-family: 'Fraunces', serif; font-style: italic; color: rgba(243,230,211,0.92); font-size: 11px; text-align: center; padding: 8px; }
+    .mo-cell.multi::before { content: ''; position: absolute; top: 6px; right: 6px; width: 15px; height: 15px; background-color: rgba(0,0,0,0.35); border-radius: 3px; background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><rect x="7" y="7" width="14" height="14" rx="2"/><path d="M3 15V5a2 2 0 0 1 2-2h10"/></svg>'); background-size: 10px; background-repeat: no-repeat; background-position: center; }
+    .mo-cell.video::after { content: ''; position: absolute; top: 6px; right: 6px; width: 14px; height: 14px; background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="white"><path d="M8 5v14l11-7z"/></svg>'); background-size: contain; background-repeat: no-repeat; filter: drop-shadow(0 1px 2px rgba(0,0,0,0.6)); }
+
+    .mo-empty { padding: 18px 22px; color: var(--muted); font-size: 12.5px; }
+
+    .mo-modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 980; display: none; align-items: flex-end; }
+    .mo-modal-overlay.is-open { display: flex; }
+    .mo-modal { width: 100%; max-height: 88vh; overflow-y: auto; background: var(--bg-app); border-radius: 20px 20px 0 0; padding: 18px 20px 26px; font-family: 'Inter', sans-serif; }
+    .mo-modal-close { float: right; background: none; border: none; color: var(--muted); font-size: 20px; cursor: pointer; }
+    .mo-modal h3 { font-family: 'Fraunces', serif; font-style: italic; color: var(--cream); font-size: 18px; clear: both; padding-top: 4px; }
+    .mo-modal p { color: var(--muted); font-size: 13px; line-height: 1.6; margin-top: 10px; white-space: pre-wrap; }
+    .mo-modal-actions { display: flex; gap: 10px; margin-top: 14px; padding-top: 14px; border-top: 1px solid var(--divider); }
+    .mo-modal-actions button { font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 600; padding: 7px 14px; border-radius: 20px; border: 1px solid var(--amber); background: none; color: var(--amber); cursor: pointer; }
+    .mo-modal-comments { margin-top: 14px; }
+    .mo-modal-comments input { width: 100%; padding: 9px; margin-top: 8px; background: var(--surface); border: 1px solid var(--divider); color: var(--cream); border-radius: 8px; box-sizing: border-box; font-family: 'Inter', sans-serif; font-size: 12.5px; }
+  }
+</style>
 </head>
 <body data-page-id="feed" data-page-title="Reading Room — Adversaria">
 
@@ -42,7 +106,7 @@
   </div>
 </div>
 
-<main class="shell" style="max-width: 720px; margin: 60px auto; padding: 0 20px;">
+<main class="shell mo-desktop" style="max-width: 720px; margin: 60px auto; padding: 0 20px;">
   <h1 style="font-family: var(--display); font-style: italic; color: var(--paper); font-size: 1.8rem;">The Reading Room</h1>
   <input id="feedSearch" type="text" placeholder="Search the Reading Room..." style="width: 100%; padding: 10px; margin-top: 16px; background: var(--ink-raised); border: 1px solid var(--ink-line); color: var(--paper); border-radius: 4px;">
   <div style="margin-top: 12px;">
@@ -51,6 +115,83 @@
   </div>
   <div id="postsList" style="margin-top: 30px;"></div>
 </main>
+
+<main class="mo-mobile">
+  <div class="mo-header">
+    <div>
+      <div class="mo-wordmark">Moments</div>
+      <div class="mo-sub" id="moSub">&nbsp;</div>
+    </div>
+    <div class="mo-header-icons">
+      <a class="mo-icon-btn" href="bookshelf.html" aria-label="Saved">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 4h16v13H8l-4 4V4z"/></svg>
+      </a>
+      <a class="mo-icon-btn" href="messages.html" aria-label="Messages">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M18 8a6 6 0 00-12 0c0 7-3 9-3 9h18s-3-2-3-9z"/><path d="M13.7 21a2 2 0 01-3.4 0"/></svg>
+      </a>
+      <a class="mo-icon-btn" href="write.html" aria-label="Write">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+      </a>
+    </div>
+  </div>
+
+  <div class="mo-toggle-row">
+    <button class="mo-toggle on" data-filter="all">ALL</button>
+    <button class="mo-toggle" data-filter="photos">PHOTOS</button>
+    <button class="mo-toggle" data-filter="reels">REELS</button>
+  </div>
+
+  <div id="moReelsSection">
+    <div class="mo-label">Featured reels</div>
+    <div class="mo-reels-strip" id="moReelsStrip"><div class="mo-empty">Loading&hellip;</div></div>
+  </div>
+
+  <div class="mo-label">All moments</div>
+  <div class="mo-grid" id="moGrid"></div>
+</main>
+
+<div class="mo-modal-overlay" id="moModalOverlay">
+  <div class="mo-modal">
+    <button class="mo-modal-close" id="moModalClose">&times;</button>
+    <h3 id="moModalTitle"></h3>
+    <p id="moModalContent"></p>
+    <div class="mo-modal-actions">
+      <button id="moModalLike">&#9825; <span id="moModalLikeCount">0</span></button>
+      <button id="moModalSave">Save</button>
+    </div>
+    <div class="mo-modal-comments">
+      <div id="moModalCommentsList"></div>
+      <input type="text" id="moModalCommentInput" placeholder="Write a comment...">
+    </div>
+  </div>
+</div>
+
+<a href="write.html" class="mobile-fab" aria-label="Write">
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+</a>
+
+<nav class="mobile-tabbar" aria-label="Main navigation">
+  <a href="index.html" data-tab="stacks">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3"><path d="M4 19.5V5a2 2 0 0 1 2-2h13v16H6a2 2 0 0 0-2 2.5z"/></svg>
+    <span class="tb-dot"></span>
+  </a>
+  <a href="feed.html" data-tab="moments" class="is-active">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3"><rect x="4" y="4" width="16" height="16" rx="2"/><circle cx="9.5" cy="9.5" r="1.6"/><path d="m20 15-4-4-9 9"/></svg>
+    <span class="tb-dot"></span>
+  </a>
+  <a href="explore.html" data-tab="explore">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+    <span class="tb-dot"></span>
+  </a>
+  <a href="bookshelf.html" data-tab="bookshelf">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3"><path d="M4 4.5v16l4-2 4 2 4-2 4 2v-16"/></svg>
+    <span class="tb-dot"></span>
+  </a>
+  <a href="profile.html" data-tab="profile">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3"><circle cx="12" cy="8" r="3.6"/><path d="M4.5 21c1.4-4.3 4.7-6.2 7.5-6.2s6.1 1.9 7.5 6.2"/></svg>
+    <span class="tb-dot"></span>
+  </a>
+</nav>
 
 <script src="reader.js"></script>
 <script>
@@ -156,10 +297,12 @@
     }
     if (!posts) {
       list.innerHTML = '<p style="color: var(--paper-dim);">Nothing here yet.</p>';
+      renderMobileMoments([]);
       return;
     }
     if (posts.length === 0) {
       list.innerHTML = '<p style="color: var(--paper-dim);">Nothing here yet.</p>';
+      renderMobileMoments([]);
       return;
     }
     var html = '';
@@ -168,7 +311,149 @@
     }
     list.innerHTML = html;
     wireUpPostInteractions();
+    renderMobileMoments(posts);
   }
+
+  var moFilter = 'all';
+  var moPosts = [];
+
+  function hasImage(p) { return (p.image_urls && p.image_urls.length > 0) || p.image_url; }
+  function hasVideo(p) { return !!getVideoEmbedUrl(p.video_url); }
+
+  function renderMobileMoments(posts) {
+    moPosts = posts || [];
+    var sub = document.getElementById('moSub');
+    var mediaCount = moPosts.filter(function (p) { return hasImage(p) || hasVideo(p); }).length;
+    sub.textContent = mediaCount + (mediaCount === 1 ? ' entry shared' : ' entries shared');
+
+    var reels = moPosts.filter(hasVideo);
+    var reelsSection = document.getElementById('moReelsSection');
+    var reelsStrip = document.getElementById('moReelsStrip');
+    if (reels.length === 0) {
+      reelsSection.style.display = 'none';
+    } else {
+      reelsSection.style.display = 'block';
+      var reelsHtml = '';
+      reels.slice(0, 8).forEach(function (p) {
+        reelsHtml += '<a class="mo-reel-card" data-post-id="' + p.id + '">';
+        reelsHtml += '<div class="mo-reel-play"><svg width="8" height="8" viewBox="0 0 24 24" fill="currentColor"><path d="M6 4l14 8-14 8V4z"/></svg></div>';
+        reelsHtml += '<div class="mo-reel-name">' + escapeHtml(p.author_username) + '</div>';
+        reelsHtml += '<div class="mo-reel-meta">' + escapeHtml(p.title) + '</div>';
+        reelsHtml += '</a>';
+      });
+      reelsStrip.innerHTML = reelsHtml;
+    }
+
+    renderMoGrid();
+  }
+
+  function renderMoGrid() {
+    var grid = document.getElementById('moGrid');
+    var items = moPosts.filter(function (p) {
+      if (moFilter === 'photos') { return hasImage(p) && !hasVideo(p); }
+      if (moFilter === 'reels') { return hasVideo(p); }
+      return hasImage(p) || hasVideo(p);
+    });
+
+    if (items.length === 0) {
+      grid.innerHTML = '<div class="mo-empty">Nothing here yet.</div>';
+      return;
+    }
+
+    var html = '';
+    items.forEach(function (p) {
+      var isMulti = p.image_urls && p.image_urls.length > 1;
+      var isVideo = hasVideo(p);
+      var cls = 'mo-cell' + (isMulti ? ' multi' : '') + (isVideo ? ' video' : '');
+      html += '<button type="button" class="' + cls + '" data-post-id="' + p.id + '">';
+      if (p.image_url) {
+        html += '<img src="' + escapeHtml(p.image_url) + '">';
+      } else {
+        html += '<span class="mo-cell-title">' + escapeHtml(p.title) + '</span>';
+      }
+      html += '</button>';
+    });
+    grid.innerHTML = html;
+  }
+
+  document.querySelectorAll('.mo-toggle').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      document.querySelectorAll('.mo-toggle').forEach(function (b) { b.classList.remove('on'); });
+      this.classList.add('on');
+      moFilter = this.dataset.filter;
+      renderMoGrid();
+    });
+  });
+
+  var moCurrentPostId = null;
+
+  function openMoModal(postId) {
+    var post = null;
+    for (var i = 0; i < moPosts.length; i++) {
+      if (String(moPosts[i].id) === String(postId)) { post = moPosts[i]; break; }
+    }
+    if (!post) { return; }
+    moCurrentPostId = post.id;
+    document.getElementById('moModalTitle').textContent = post.title;
+    document.getElementById('moModalContent').textContent = post.content;
+    refreshLikeCount(post.id, { querySelector: function () { return document.getElementById('moModalLikeCount'); } });
+    document.getElementById('moModalOverlay').classList.add('is-open');
+    loadMoComments(post.id);
+  }
+
+  async function loadMoComments(postId) {
+    var listEl = document.getElementById('moModalCommentsList');
+    await loadComments(postId, listEl);
+  }
+
+  document.getElementById('moGrid').addEventListener('click', function (e) {
+    var cell = e.target.closest('[data-post-id]');
+    if (cell) { openMoModal(cell.dataset.postId); }
+  });
+  document.getElementById('moReelsStrip').addEventListener('click', function (e) {
+    var card = e.target.closest('[data-post-id]');
+    if (card) { openMoModal(card.dataset.postId); }
+  });
+  document.getElementById('moModalClose').addEventListener('click', function () {
+    document.getElementById('moModalOverlay').classList.remove('is-open');
+    moCurrentPostId = null;
+  });
+  document.getElementById('moModalOverlay').addEventListener('click', function (e) {
+    if (e.target === this) { this.classList.remove('is-open'); moCurrentPostId = null; }
+  });
+  document.getElementById('moModalLike').addEventListener('click', async function () {
+    if (!currentUser) { alert('Sign in to like posts.'); return; }
+    if (!moCurrentPostId) { return; }
+    await toggleLike(moCurrentPostId, { querySelector: function () { return document.getElementById('moModalLikeCount'); } }, currentUser.id);
+  });
+  document.getElementById('moModalSave').addEventListener('click', async function () {
+    if (!currentUser) { alert('Sign in to save posts.'); return; }
+    if (!moCurrentPostId) { return; }
+    var btn = this;
+    var existing = await sb.from('saves').select('id').eq('post_id', moCurrentPostId).eq('user_id', currentUser.id);
+    if (existing.data && existing.data.length > 0) {
+      await sb.from('saves').delete().eq('post_id', moCurrentPostId).eq('user_id', currentUser.id);
+      btn.textContent = 'Save';
+    } else {
+      await sb.from('saves').insert({ post_id: moCurrentPostId, user_id: currentUser.id });
+      btn.textContent = 'Saved';
+    }
+  });
+  document.getElementById('moModalCommentInput').addEventListener('keypress', async function (e) {
+    if (e.key === 'Enter') {
+      if (!currentUser) { alert('Sign in to comment.'); return; }
+      if (!moCurrentPostId) { return; }
+      var content = this.value.trim();
+      if (!content) { return; }
+      var uname = currentUser.email;
+      if (currentUser.user_metadata && currentUser.user_metadata.username) {
+        uname = currentUser.user_metadata.username;
+      }
+      await sb.from('comments').insert({ post_id: moCurrentPostId, user_id: currentUser.id, author_username: uname, content: content });
+      this.value = '';
+      loadMoComments(moCurrentPostId);
+    }
+  });
 
   document.getElementById('feedSearch').addEventListener('input', function () {
     var query = this.value.toLowerCase();

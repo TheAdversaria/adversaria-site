@@ -1,0 +1,374 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Bookshelf — Adversaria</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,300;0,400;0,500;0,600;1,400;1,500&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="supabase-client.js"></script>
+<style>
+  .bs-desktop { display: block; }
+  .bs-mobile { display: none; }
+
+  @media (max-width: 640px) {
+    .bs-desktop { display: none; }
+
+    .bs-mobile {
+      --bg-app: #1C1814;
+      --surface: #262019;
+      --cream: #F3E6D3;
+      --muted: #A9977F;
+      --amber: #E8A15C;
+      --amber-dim: #8A6136;
+      --divider: rgba(243,230,211,0.08);
+      display: block;
+      font-family: 'Inter', sans-serif;
+      background: var(--bg-app);
+      margin: -20px -20px 0;
+      padding: 14px 0 0;
+    }
+
+    .bs-header { padding: 4px 22px 14px; display: flex; align-items: center; justify-content: space-between; }
+    .bs-title { font-family: 'Fraunces', serif; font-style: italic; font-weight: 500; font-size: 23px; color: var(--cream); }
+    .bs-newshelf {
+      font-family: 'JetBrains Mono', monospace; font-size: 10.5px; font-weight: 600; letter-spacing: 0.3px;
+      background: linear-gradient(150deg, #F0AE6E, #C97B3E); color: #1C1410;
+      padding: 8px 14px; border-radius: 20px; border: none; cursor: pointer;
+    }
+
+    .bs-toggle-row { display: flex; gap: 18px; padding: 0 22px 12px; border-bottom: 1px solid var(--divider); overflow-x: auto; }
+    .bs-toggle { font-size: 12.5px; font-weight: 600; color: var(--muted); padding-bottom: 10px; white-space: nowrap; position: relative; background: none; border: none; cursor: pointer; font-family: 'Inter', sans-serif; }
+    .bs-toggle.on { color: var(--cream); }
+    .bs-toggle.on::after { content: ''; position: absolute; left: 0; right: 0; bottom: -1px; height: 2px; background: var(--amber); border-radius: 2px; }
+
+    .bs-panel { padding: 16px 0 90px; }
+
+    .bs-label { padding: 6px 22px 10px; font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: 1px; text-transform: uppercase; color: var(--muted); }
+
+    .bs-shelf-card { margin: 0 22px 16px; border: 1px solid var(--divider); border-radius: 18px; overflow: hidden; background: var(--surface); }
+    .bs-shelf-top { padding: 16px 16px 14px; }
+    .bs-shelf-owner { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; }
+    .bs-owner-avatar { width: 22px; height: 22px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-family: 'Fraunces', serif; font-weight: 600; font-size: 10px; color: #1C1814; background: linear-gradient(135deg, var(--amber), #C97B3E); }
+    .bs-owner-name { font-size: 12px; color: var(--muted); font-weight: 500; }
+    .bs-shelf-title { font-family: 'Fraunces', serif; font-weight: 600; font-size: 18px; color: var(--cream); margin-bottom: 10px; }
+    .bs-shelf-meta-row { display: flex; align-items: center; justify-content: space-between; }
+    .bs-shelf-count { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--muted); }
+    .bs-shelf-count svg { width: 13px; height: 13px; }
+
+    .bs-covers { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5px; }
+    .bs-cover-cell { aspect-ratio: 3/4; position: relative; background: linear-gradient(160deg, var(--amber), #5C3A22); }
+    .bs-cover-cell.empty { background: var(--bg-app); display: flex; align-items: center; justify-content: center; }
+    .bs-cover-cell.empty svg { width: 18px; height: 18px; color: var(--divider); }
+    .bs-cover-cell img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .bs-cover-cell span { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-family: 'Fraunces', serif; font-style: italic; color: rgba(243,230,211,0.9); font-size: 12px; text-align: center; padding: 6px; }
+
+    .bs-empty { padding: 14px 22px; color: var(--muted); font-size: 12.5px; }
+
+    .bs-note-item { margin: 0 22px 10px; padding: 12px 14px; border: 1px solid var(--divider); border-radius: 12px; background: var(--surface); font-size: 12.5px; color: var(--cream); }
+    .bs-note-tag { display: block; font-family: 'JetBrains Mono', monospace; font-size: 9.5px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; }
+  }
+</style>
+</head>
+<body data-page-id="bookshelf" data-page-title="Bookshelf — Adversaria">
+
+<header class="site-header">
+  <div class="shell">
+    <a class="wordmark" href="index.html">The <span>Adversaria</span></a>
+    <nav class="site-nav">
+      <a href="index.html">Archive</a>
+      <a href="feed.html">Reading Room</a>
+      <a href="authors.html">Authors</a>
+    </nav>
+    <button class="menu-toggle-btn" id="menuToggleBtn">&#9776;</button>
+    <a class="icon-btn" href="messages.html" title="Messages" aria-label="Messages" id="messagesNavLink" style="display: none; margin-right: 8px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 2 11 13"/><path d="M22 2 15 22l-4-9-9-4z"/></svg><span class="icon-label">Messages</span></a>
+    <span id="authStatus" style="color: var(--paper-dim); font-size: 0.85rem;"></span>
+  </div>
+</header>
+<div class="side-menu-overlay" id="sideMenuOverlay"></div>
+<div class="side-menu" id="sideMenu">
+  <button class="side-menu-close" id="sideMenuClose">&times;</button>
+  <div style="clear: both; padding-top: 20px;">
+    <a href="index.html">Archive</a>
+    <a href="feed.html">Reading Room</a>
+    <a href="authors.html">Authors</a>
+    <a href="write.html">Write</a>
+    <a href="edit-profile.html">Edit Profile</a>
+    <a href="account.html">Account</a>
+    <a href="saved.html">Saved</a>
+    <a href="index.html#correspondence">Correspondence</a>
+    <a href="index.html#about">About the Keeper</a>
+  </div>
+</div>
+
+<!-- DESKTOP -->
+<main class="shell bs-desktop" style="max-width: 720px; margin: 60px auto; padding: 0 20px;">
+  <h1 style="font-family: var(--display); font-style: italic; color: var(--paper); font-size: 1.8rem;">Your Bookshelf</h1>
+  <p style="color: var(--paper-dim); margin-top: 10px;">On phones this becomes a shelf view. On desktop, here's everything you've saved:</p>
+  <div id="savedListDesktop" style="margin-top: 30px;"></div>
+</main>
+
+<!-- MOBILE -->
+<main class="bs-mobile">
+  <div class="bs-header">
+    <div class="bs-title">Your bookshelf</div>
+    <button class="bs-newshelf" id="bsNewShelf">+ NEW SHELF</button>
+  </div>
+
+  <div class="bs-toggle-row">
+    <button class="bs-toggle on" data-panel="shelves">MY SHELVES</button>
+    <button class="bs-toggle" data-panel="saved">SAVED</button>
+    <button class="bs-toggle" data-panel="finished">FINISHED</button>
+    <button class="bs-toggle" data-panel="notes">NOTES</button>
+  </div>
+
+  <div class="bs-panel" id="bsPanelShelves">
+    <div class="bs-label">Currently reading</div>
+    <div id="bsCurrentlyReading"><div class="bs-empty">Loading&hellip;</div></div>
+
+    <div class="bs-label">Your shelves</div>
+    <div id="bsShelvesSaved"><div class="bs-empty">Loading&hellip;</div></div>
+  </div>
+
+  <div class="bs-panel" id="bsPanelSaved" style="display:none;">
+    <div id="bsSavedList"><div class="bs-empty">Loading&hellip;</div></div>
+  </div>
+
+  <div class="bs-panel" id="bsPanelFinished" style="display:none;">
+    <div class="bs-empty">Marking books as finished isn't tracked yet — coming later.</div>
+  </div>
+
+  <div class="bs-panel" id="bsPanelNotes" style="display:none;">
+    <div id="bsNotesList"><div class="bs-empty">Loading&hellip;</div></div>
+  </div>
+</main>
+
+<nav class="mobile-tabbar" aria-label="Main navigation">
+  <a href="index.html" data-tab="stacks">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3"><path d="M4 19.5V5a2 2 0 0 1 2-2h13v16H6a2 2 0 0 0-2 2.5z"/></svg>
+    <span class="tb-dot"></span>
+  </a>
+  <a href="feed.html" data-tab="moments">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3"><rect x="4" y="4" width="16" height="16" rx="2"/><circle cx="9.5" cy="9.5" r="1.6"/><path d="m20 15-4-4-9 9"/></svg>
+    <span class="tb-dot"></span>
+  </a>
+  <a href="explore.html" data-tab="explore">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+    <span class="tb-dot"></span>
+  </a>
+  <a href="bookshelf.html" data-tab="bookshelf" class="is-active">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3"><path d="M4 4.5v16l4-2 4 2 4-2 4 2v-16"/></svg>
+    <span class="tb-dot"></span>
+  </a>
+  <a href="profile.html" data-tab="profile">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3"><circle cx="12" cy="8" r="3.6"/><path d="M4.5 21c1.4-4.3 4.7-6.2 7.5-6.2s6.1 1.9 7.5 6.2"/></svg>
+    <span class="tb-dot"></span>
+  </a>
+</nav>
+
+<a href="write.html" class="mobile-fab" aria-label="Write">
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+</a>
+
+<script src="reader.js"></script>
+<script>
+  function escapeHtml(s) {
+    var d = document.createElement('div');
+    d.textContent = s;
+    return d.innerHTML;
+  }
+
+  document.querySelectorAll('.bs-toggle').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      document.querySelectorAll('.bs-toggle').forEach(function (b) { b.classList.remove('on'); });
+      this.classList.add('on');
+      document.getElementById('bsPanelShelves').style.display = 'none';
+      document.getElementById('bsPanelSaved').style.display = 'none';
+      document.getElementById('bsPanelFinished').style.display = 'none';
+      document.getElementById('bsPanelNotes').style.display = 'none';
+      document.getElementById('bsPanel' + this.dataset.panel.charAt(0).toUpperCase() + this.dataset.panel.slice(1)).style.display = 'block';
+    });
+  });
+
+  document.getElementById('bsNewShelf').addEventListener('click', function () {
+    alert('Custom shelves are coming soon — for now your reading and saves are organized automatically.');
+  });
+
+  function buildCoverCells(items, max) {
+    var html = '';
+    for (var i = 0; i < max; i++) {
+      if (i < items.length) {
+        var it = items[i];
+        if (it.image_url) {
+          html += '<div class="bs-cover-cell"><img src="' + escapeHtml(it.image_url) + '"></div>';
+        } else {
+          html += '<div class="bs-cover-cell"><span>' + escapeHtml(it.title) + '</span></div>';
+        }
+      } else {
+        html += '<div class="bs-cover-cell empty"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 5v14M5 12h14"/></svg></div>';
+      }
+    }
+    return html;
+  }
+
+  async function loadCurrentlyReading() {
+    var wrap = document.getElementById('bsCurrentlyReading');
+    var last = null;
+    try { last = JSON.parse(localStorage.getItem('marg:lastRead') || 'null'); } catch (e) {}
+
+    if (!last || last.pct < 2) {
+      wrap.innerHTML = '<div class="bs-empty">Nothing in progress — open a manuscript to start.</div>';
+      return;
+    }
+
+    var html = '<div class="bs-shelf-card"><div class="bs-shelf-top">';
+    html += '<div class="bs-shelf-owner"><div class="bs-owner-avatar">Y</div><div class="bs-owner-name">Your shelf</div></div>';
+    html += '<div class="bs-shelf-title">' + escapeHtml(last.title || 'Untitled') + '</div>';
+    html += '<div class="bs-shelf-meta-row"><div class="bs-shelf-count">';
+    html += '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 4h4v16l-2-1.5L4 20V4z"/><path d="M10 4h4v16l-2-1.5-2 1.5V4z"/></svg>';
+    html += Math.round(last.pct) + '% read';
+    html += '</div></div></div>';
+    html += '<div class="bs-covers">' + buildCoverCells([{ title: last.title }], 3) + '</div>';
+    html += '</div>';
+    wrap.innerHTML = html;
+  }
+
+  async function loadSavedShelfCard(posts) {
+    var wrap = document.getElementById('bsShelvesSaved');
+    if (!posts || posts.length === 0) {
+      wrap.innerHTML = '<div class="bs-empty">Nothing saved yet — the heart icon on any entry adds it here.</div>';
+      return;
+    }
+    var html = '<div class="bs-shelf-card"><div class="bs-shelf-top">';
+    html += '<div class="bs-shelf-owner"><div class="bs-owner-avatar">Y</div><div class="bs-owner-name">Your shelf</div></div>';
+    html += '<div class="bs-shelf-title">Saved entries</div>';
+    html += '<div class="bs-shelf-meta-row"><div class="bs-shelf-count">';
+    html += '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 4h4v16l-2-1.5L4 20V4z"/><path d="M10 4h4v16l-2-1.5-2 1.5V4z"/></svg>';
+    html += posts.length + (posts.length === 1 ? ' entry &middot; private' : ' entries &middot; private');
+    html += '</div></div></div>';
+    html += '<div class="bs-covers">' + buildCoverCells(posts, 3) + '</div>';
+    html += '</div>';
+    wrap.innerHTML = html;
+  }
+
+  async function loadSavedFullList(posts) {
+    var wrap = document.getElementById('bsSavedList');
+    if (!posts || posts.length === 0) {
+      wrap.innerHTML = '<div class="bs-empty">Nothing saved yet.</div>';
+      return;
+    }
+    var html = '';
+    posts.forEach(function (p) {
+      html += '<div class="bs-note-item">';
+      html += '<span class="bs-note-tag">by ' + escapeHtml(p.author_username) + '</span>';
+      html += '<strong style="font-family:\'Fraunces\',serif;">' + escapeHtml(p.title) + '</strong>';
+      html += '</div>';
+    });
+    wrap.innerHTML = html;
+  }
+
+  function loadNotes() {
+    var wrap = document.getElementById('bsNotesList');
+    var bookmarks = [];
+    var highlights = [];
+    try { bookmarks = JSON.parse(localStorage.getItem('marg:bookmarks') || '[]'); } catch (e) {}
+    try { highlights = JSON.parse(localStorage.getItem('marg:hl:ms014-ch19') || '[]'); } catch (e) {}
+
+    if (bookmarks.length === 0 && highlights.length === 0) {
+      wrap.innerHTML = '<div class="bs-empty">No highlights or bookmarks yet — mark something while reading.</div>';
+      return;
+    }
+    var html = '';
+    bookmarks.forEach(function (b) {
+      html += '<div class="bs-note-item"><span class="bs-note-tag">bookmark</span>' + escapeHtml(b.title || 'Untitled') + '</div>';
+    });
+    highlights.forEach(function (h) {
+      if (h.note) {
+        html += '<div class="bs-note-item"><span class="bs-note-tag">your note</span>' + escapeHtml(h.note) + '</div>';
+      }
+    });
+    wrap.innerHTML = html || '<div class="bs-empty">No notes written yet.</div>';
+  }
+
+  async function loadAllSavedData() {
+    var userResult = await sb.auth.getUser();
+    var user = userResult.data.user;
+
+    var savedDesktop = document.getElementById('savedListDesktop');
+
+    if (!user) {
+      document.getElementById('bsShelvesSaved').innerHTML = '<div class="bs-empty">Sign in to see your saved entries.</div>';
+      document.getElementById('bsSavedList').innerHTML = '<div class="bs-empty">Sign in to see your saved entries.</div>';
+      savedDesktop.innerHTML = '<p style="color: var(--paper-dim);">Sign in to see your saved entries.</p>';
+      return;
+    }
+
+    var savesResult = await sb.from('saves').select('post_id').eq('user_id', user.id);
+    var saves = savesResult.data || [];
+    if (saves.length === 0) {
+      loadSavedShelfCard([]);
+      loadSavedFullList([]);
+      savedDesktop.innerHTML = '<p style="color: var(--paper-dim);">Nothing saved yet.</p>';
+      return;
+    }
+
+    var ids = saves.map(function (s) { return s.post_id; });
+    var postsResult = await sb.from('posts').select('*').in('id', ids);
+    var posts = postsResult.data || [];
+
+    loadSavedShelfCard(posts);
+    loadSavedFullList(posts);
+
+    var deskHtml = '';
+    posts.forEach(function (p) {
+      deskHtml += '<article style="border-bottom: 1px solid var(--ink-line); padding: 20px 0;">';
+      deskHtml += '<h2 style="font-family: var(--display); color: var(--paper); font-size: 1.3rem;">' + escapeHtml(p.title) + '</h2>';
+      deskHtml += '<span style="color: var(--brass); font-size: 0.85rem;">by ' + escapeHtml(p.author_username) + '</span>';
+      deskHtml += '<p style="color: var(--paper-dim); margin-top: 10px; white-space: pre-wrap;">' + escapeHtml(p.content) + '</p>';
+      deskHtml += '</article>';
+    });
+    savedDesktop.innerHTML = deskHtml;
+  }
+
+  loadCurrentlyReading();
+  loadAllSavedData();
+  loadNotes();
+
+  async function showAuthStatus() {
+    var authStatus = document.getElementById('authStatus');
+    var result = await sb.auth.getUser();
+    var user = result.data.user;
+    if (user) {
+      var username = (user.user_metadata && user.user_metadata.username) ? user.user_metadata.username : user.email;
+      authStatus.innerHTML = 'Signed in as <strong style="color: var(--brass);">' + username + '</strong> &middot; <a href="#" id="logoutBtn" style="color: var(--brass);">Log out</a>';
+      document.getElementById('messagesNavLink').style.display = 'inline-flex';
+      document.getElementById('logoutBtn').addEventListener('click', async function (e) {
+        e.preventDefault();
+        await sb.auth.signOut();
+        window.location.reload();
+      });
+    } else {
+      authStatus.innerHTML = '<a href="account.html" style="color: var(--brass);">Sign in</a>';
+      document.getElementById('messagesNavLink').style.display = 'none';
+    }
+  }
+  showAuthStatus();
+
+  var menuBtn = document.getElementById('menuToggleBtn');
+  menuBtn.addEventListener('click', function () {
+    document.getElementById('sideMenu').classList.add('is-open');
+    document.getElementById('sideMenuOverlay').classList.add('is-open');
+  });
+  function closeSideMenu() {
+    document.getElementById('sideMenu').classList.remove('is-open');
+    document.getElementById('sideMenuOverlay').classList.remove('is-open');
+  }
+  document.getElementById('sideMenuClose').addEventListener('click', closeSideMenu);
+  document.getElementById('sideMenuOverlay').addEventListener('click', closeSideMenu);
+</script>
+
+</body>
+</html>

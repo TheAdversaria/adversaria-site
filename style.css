@@ -1363,3 +1363,81 @@ body.candle-on {
   50% { filter: brightness(1.02); }
   75% { filter: brightness(0.99); }
 }
+/* -------------------------------------------------
+   Mobile tab bar — replaces the hamburger menu on
+   phones only. Desktop is completely untouched.
+------------------------------------------------- */
+@media (max-width: 640px) {
+  .menu-toggle-btn { display: none; }
+  body { padding-bottom: 78px; }
+
+  .mobile-tabbar {
+    display: flex;
+    position: fixed;
+    left: 0; right: 0; bottom: 0;
+    height: 64px;
+    padding-bottom: env(safe-area-inset-bottom);
+    background: rgba(37, 31, 24, 0.88);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border-top: 1px solid var(--ink-line);
+    z-index: 950;
+    align-items: center;
+    justify-content: space-around;
+  }
+  .mobile-tabbar a {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    color: var(--paper-dim);
+    opacity: 0.72;
+    flex: 1;
+    height: 100%;
+    transition: color .15s ease, opacity .15s ease;
+  }
+  .mobile-tabbar a svg { width: 21px; height: 21px; display: block; }
+  .mobile-tabbar a .tb-dot {
+    width: 4px; height: 4px;
+    border-radius: 50%;
+    background: transparent;
+    transition: background .15s ease;
+  }
+  .mobile-tabbar a.is-active {
+    color: var(--brass);
+    opacity: 1;
+  }
+  .mobile-tabbar a.is-active .tb-dot { background: var(--brass); }
+
+  /* keep the settings/toc/reader-toolbar drawers above the tab bar, not under it */
+  .reader-toolbar { bottom: 78px; }
+}
+@media (min-width: 641px) {
+  .mobile-tabbar { display: none; }
+}
+
+/* -------------------------------------------------
+   Mobile write FAB — floating compose button that
+   sits just above the tab bar on phones only.
+------------------------------------------------- */
+@media (max-width: 640px) {
+  .mobile-fab {
+    display: flex;
+    position: fixed;
+    right: 18px;
+    bottom: calc(78px + env(safe-area-inset-bottom));
+    width: 50px; height: 50px;
+    border-radius: 50%;
+    background: var(--brass);
+    color: var(--ink);
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 10px 24px -6px rgba(201,138,62,0.55);
+    z-index: 940;
+  }
+  .mobile-fab svg { width: 22px; height: 22px; }
+}
+@media (min-width: 641px) {
+  .mobile-fab { display: none; }
+}

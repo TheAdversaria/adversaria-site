@@ -6,9 +6,60 @@
 <title>Profile — Adversaria</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,400;0,600;1,400&family=Source+Serif+4:wght@400;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,300;0,400;0,600;1,400&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css">
-<style>.profileCard { transition: border-color .2s ease; } .profileCard:hover { border-color: var(--brass-dim) !important; }</style>
+<style>
+  .profileCard { transition: border-color .2s ease; } .profileCard:hover { border-color: var(--brass-dim) !important; }
+
+  .pf-streak, .pf-toggle-row, .pf-mobile-grid { display: none; }
+
+  @media (max-width: 640px) {
+    body { font-family: 'Inter', sans-serif; }
+
+    .pf-head {
+      flex-direction: column !important;
+      align-items: center !important;
+      text-align: center;
+      border-bottom: none !important;
+      padding-bottom: 6px !important;
+    }
+    .pf-avatar { width: 78px !important; height: 78px !important; margin: 0 auto 4px !important; }
+    .pf-name { font-size: 1.35rem !important; margin-top: 8px !important; }
+    #profileHandle { font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; color: var(--dust); margin-top: 3px; }
+    .pf-stats { justify-content: center !important; gap: 26px !important; margin-top: 14px !important; }
+    .pf-stats span { text-transform: uppercase; letter-spacing: 0.04em; font-family: 'JetBrains Mono', monospace; font-size: 0.62rem !important; }
+    .pf-actions { justify-content: center !important; margin-top: 14px !important; }
+    .pf-actions a, .pf-actions button { border-radius: 20px !important; font-family: 'JetBrains Mono', monospace !important; font-size: 0.68rem !important; letter-spacing: 0.03em; }
+    .pf-bio { text-align: center; margin-left: auto !important; margin-right: auto !important; }
+
+    .pf-streak {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin: 18px 0 0;
+      padding: 13px 16px;
+      background: var(--ink-raised);
+      border: 1px solid var(--ink-line);
+      border-radius: 16px;
+    }
+    .pf-streak svg { width: 22px; height: 22px; color: var(--brass); flex: none; }
+    .pf-streak-title { font-size: 0.8rem; font-weight: 600; color: var(--paper); }
+    .pf-streak-sub { font-size: 0.68rem; color: var(--dust); margin-top: 1px; }
+
+    .pf-toggle-row { display: flex; gap: 20px; margin-top: 20px; padding-bottom: 0; border-bottom: 1px solid var(--ink-line); overflow-x: auto; }
+    .pf-toggle { font-family: 'JetBrains Mono', monospace; font-size: 0.68rem; letter-spacing: 0.03em; color: var(--dust); padding-bottom: 10px; position: relative; background: none; border: none; cursor: pointer; white-space: nowrap; }
+    .pf-toggle.on { color: var(--paper); }
+    .pf-toggle.on::after { content: ''; position: absolute; left: 0; right: 0; bottom: -1px; height: 2px; background: var(--brass); border-radius: 2px; }
+
+    .pf-mobile-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2px; margin-top: 2px; padding-bottom: 30px; }
+    .pf-cell { aspect-ratio: 1/1; position: relative; overflow: hidden; background: linear-gradient(160deg, var(--brass), var(--ink-raised) 85%); border: none; padding: 0; cursor: pointer; }
+    .pf-cell img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .pf-cell span { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-family: var(--display); font-style: italic; color: rgba(232,223,200,0.9); font-size: 11px; text-align: center; padding: 6px; }
+    .pf-empty { grid-column: 1 / -1; padding: 20px; text-align: center; color: var(--dust); font-size: 0.8rem; }
+
+    #postsList { display: none !important; }
+  }
+</style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="supabase-client.js"></script>
 </head>
@@ -43,20 +94,21 @@
 </div>
 
 <main class="shell" style="max-width: 860px; margin: 60px auto; padding: 0 20px;">
-  <div id="profileHead" style="display: flex; align-items: flex-start; gap: 28px; padding-bottom: 26px; border-bottom: 1px solid var(--ink-line); flex-wrap: wrap;">
-    <img id="profileAvatar" src="" style="width: 128px; height: 128px; border-radius: 50%; object-fit: cover; display: none; border: 2px solid var(--brass-dim); flex: none;">
-    <div id="profileAvatarPlaceholder" style="width: 128px; height: 128px; border-radius: 50%; background: var(--ink-raised); border: 2px solid var(--ink-line); display: flex; align-items: center; justify-content: center; font-family: var(--display); font-style: italic; font-size: 2.6rem; color: var(--dust); flex: none;"></div>
+  <div id="profileHead" class="pf-head" style="display: flex; align-items: flex-start; gap: 28px; padding-bottom: 26px; border-bottom: 1px solid var(--ink-line); flex-wrap: wrap;">
+    <img id="profileAvatar" class="pf-avatar" src="" style="width: 128px; height: 128px; border-radius: 50%; object-fit: cover; display: none; border: 2px solid var(--brass-dim); flex: none;">
+    <div id="profileAvatarPlaceholder" class="pf-avatar" style="width: 128px; height: 128px; border-radius: 50%; background: var(--ink-raised); border: 2px solid var(--ink-line); display: flex; align-items: center; justify-content: center; font-family: var(--display); font-style: italic; font-size: 2.6rem; color: var(--dust); flex: none;"></div>
     <div style="flex: 1; min-width: 220px; padding-top: 4px;">
-      <h1 id="profileTitle" style="font-family: var(--display); font-style: italic; color: var(--paper); font-size: 1.9rem; margin: 0;"></h1>
+      <h1 id="profileTitle" class="pf-name" style="font-family: var(--display); font-style: italic; color: var(--paper); font-size: 1.9rem; margin: 0;"></h1>
+      <div id="profileHandle"></div>
 
-      <div id="profileStats" style="display: flex; gap: 26px; margin-top: 12px; flex-wrap: wrap;">
+      <div id="profileStats" class="pf-stats" style="display: flex; gap: 26px; margin-top: 12px; flex-wrap: wrap;">
         <div><strong id="statEntries" style="color: var(--paper); font-family: var(--display); font-size: 1.05rem;">0</strong> <span style="color: var(--dust); font-size: 0.8rem;">entries</span></div>
         <div><strong id="statFollowers" style="color: var(--paper); font-family: var(--display); font-size: 1.05rem;">0</strong> <span style="color: var(--dust); font-size: 0.8rem;">followers</span></div>
         <div><strong id="statFollowing" style="color: var(--paper); font-family: var(--display); font-size: 1.05rem;">0</strong> <span style="color: var(--dust); font-size: 0.8rem;">following</span></div>
         <div id="statJoined" style="color: var(--dust); font-size: 0.8rem; align-self: center;"></div>
       </div>
 
-      <div style="display: flex; align-items: center; gap: 10px; margin-top: 16px; flex-wrap: wrap;">
+      <div class="pf-actions" style="display: flex; align-items: center; gap: 10px; margin-top: 16px; flex-wrap: wrap;">
         <a id="editProfileLink" href="edit-profile.html" style="display: none; padding: 7px 16px; border: 1px solid var(--brass-dim); color: var(--brass); border-radius: 4px; font-size: 0.8rem; white-space: nowrap;">Edit Profile</a>
         <a id="messageLink" href="#" style="display: none; padding: 7px 16px; background: var(--brass); border: 1px solid var(--brass); color: var(--ink); border-radius: 4px; font-size: 0.8rem; white-space: nowrap; text-decoration: none;">Message</a>
         <button id="followBtn" type="button" style="display: none; padding: 7px 16px; border: 1px solid var(--brass-dim); background: none; color: var(--brass); border-radius: 4px; font-size: 0.8rem; cursor: pointer; white-space: nowrap;">Follow</button>
@@ -66,9 +118,27 @@
         </button>
       </div>
 
-      <p id="profileBio" style="color: var(--paper-dim); margin-top: 16px; max-width: 54ch; line-height: 1.6;"></p>
+      <p id="profileBio" class="pf-bio" style="color: var(--paper-dim); margin-top: 16px; max-width: 54ch; line-height: 1.6;"></p>
+    </div>
+
+  </div>
+  <div class="pf-streak" id="pfStreak">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2c1 3-2 4-2 7a4 4 0 008 0c0-1-.5-2-1-2 1.5 2 1 6-2 7.5-4 2-9-.5-9-5.5 0-4 3-5 3-9 1 0 2.5.5 3 2z"/></svg>
+    <div>
+      <div class="pf-streak-title" id="pfStreakTitle">No reading streak yet</div>
+      <div class="pf-streak-sub" id="pfStreakSub">Highlight or bookmark something to start one</div>
     </div>
   </div>
+
+  <div class="pf-toggle-row">
+    <button class="pf-toggle on" data-panel="posts">POSTS</button>
+    <button class="pf-toggle" data-panel="shelves">SHELVES</button>
+    <button class="pf-toggle" data-panel="moments">MOMENTS</button>
+    <button class="pf-toggle" data-panel="saved">SAVED</button>
+  </div>
+
+  <div class="pf-mobile-grid" id="pfMobileGrid"></div>
+
   <div id="postsList" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 16px; margin-top: 30px;"></div>
 </main>
 
@@ -99,11 +169,56 @@
   </div>
 </div>
 
+<a href="write.html" class="mobile-fab" aria-label="Write">
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+</a>
+
+<nav class="mobile-tabbar" aria-label="Main navigation">
+  <a href="index.html" data-tab="stacks">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3"><path d="M4 19.5V5a2 2 0 0 1 2-2h13v16H6a2 2 0 0 0-2 2.5z"/></svg>
+    <span class="tb-dot"></span>
+  </a>
+  <a href="feed.html" data-tab="moments">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3"><rect x="4" y="4" width="16" height="16" rx="2"/><circle cx="9.5" cy="9.5" r="1.6"/><path d="m20 15-4-4-9 9"/></svg>
+    <span class="tb-dot"></span>
+  </a>
+  <a href="explore.html" data-tab="explore">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+    <span class="tb-dot"></span>
+  </a>
+  <a href="bookshelf.html" data-tab="bookshelf">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3"><path d="M4 4.5v16l4-2 4 2 4-2 4 2v-16"/></svg>
+    <span class="tb-dot"></span>
+  </a>
+  <a href="profile.html" data-tab="profile" class="is-active">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3"><circle cx="12" cy="8" r="3.6"/><path d="M4.5 21c1.4-4.3 4.7-6.2 7.5-6.2s6.1 1.9 7.5 6.2"/></svg>
+    <span class="tb-dot"></span>
+  </a>
+</nav>
+
 <script src="reader.js"></script>
 <script>
   var params = new URLSearchParams(window.location.search);
   var username = params.get('username');
-  document.getElementById('profileTitle').textContent = username ? username : 'Unknown';
+
+  async function resolveUsername() {
+    if (username) { return username; }
+    var result = await sb.auth.getUser();
+    var user = result.data.user;
+    if (!user) {
+      document.getElementById('profileTitle').textContent = 'Sign in to view your profile';
+      return null;
+    }
+    var myUsername = user.email;
+    if (user.user_metadata && user.user_metadata.username) {
+      myUsername = user.user_metadata.username;
+    }
+    username = myUsername;
+    history.replaceState(null, '', 'profile.html?username=' + encodeURIComponent(username));
+    return username;
+  }
+
+  document.getElementById('profileTitle').textContent = username ? username : '';
 
   function escapeHtml(s) {
     var d = document.createElement('div');
@@ -140,11 +255,12 @@
       if (joined) {
         document.getElementById('statJoined').textContent = joined;
       }
+      document.getElementById('profileHandle').textContent = '@' + username + (joined ? ' \u00B7 ' + joined.replace('Joined ', 'joined ') : '');
     } else {
       document.getElementById('profileAvatarPlaceholder').textContent = initial;
+      document.getElementById('profileHandle').textContent = '@' + username;
     }
   }
-  loadProfileInfo();
 
   document.getElementById('shareProfileBtn').addEventListener('click', async function () {
     var url = window.location.href;
@@ -229,7 +345,6 @@
       loadFollowCounts();
     });
   }
-  checkIsOwnProfile();
 
   async function loadFollowCounts() {
     var followersResult = await sb.from('follows').select('id').eq('following_username', username);
@@ -237,7 +352,6 @@
     document.getElementById('statFollowers').textContent = followersResult.data ? followersResult.data.length : 0;
     document.getElementById('statFollowing').textContent = followingResult.data ? followingResult.data.length : 0;
   }
-  loadFollowCounts();
 
   function getVideoEmbedUrl(url) {
     if (!url) { return null; }
@@ -312,6 +426,11 @@
     var post = null;
     for (var i = 0; i < loadedPosts.length; i++) {
       if (String(loadedPosts[i].id) === String(postId)) { post = loadedPosts[i]; break; }
+    }
+    if (!post && pfSavedPosts) {
+      for (var s = 0; s < pfSavedPosts.length; s++) {
+        if (String(pfSavedPosts[s].id) === String(postId)) { post = pfSavedPosts[s]; break; }
+      }
     }
     if (!post) { return; }
     currentModalPostId = post.id;
@@ -475,6 +594,7 @@
     if (!posts || posts.length === 0) {
       list.innerHTML = '<p style="color: var(--paper-dim); grid-column: 1 / -1;">Nothing published yet.</p>';
       document.getElementById('statEntries').textContent = '0';
+      renderPfGrid();
       return;
     }
 
@@ -505,8 +625,137 @@
       html += buildCardHtml(posts[k], count);
     }
     list.innerHTML = html;
+    renderPfGrid();
   }
-  loadUserPosts();
+
+  /* ---- Mobile: streak strip, toggle row, tile grid ---- */
+  var pfPanel = 'posts';
+  var pfSavedPosts = null;
+
+  function pfHasMedia(p) {
+    return (p.image_urls && p.image_urls.length > 0) || p.image_url || p.video_url;
+  }
+
+  function renderPfCells(posts) {
+    var grid = document.getElementById('pfMobileGrid');
+    if (!posts || posts.length === 0) {
+      grid.innerHTML = '<div class="pf-empty">Nothing here yet.</div>';
+      return;
+    }
+    var html = '';
+    posts.forEach(function (p) {
+      html += '<button type="button" class="pf-cell" data-post-id="' + p.id + '">';
+      if (p.image_url) {
+        html += '<img src="' + escapeHtml(p.image_url) + '">';
+      } else {
+        html += '<span>' + escapeHtml(p.title) + '</span>';
+      }
+      html += '</button>';
+    });
+    grid.innerHTML = html;
+  }
+
+  async function renderPfGrid() {
+    var grid = document.getElementById('pfMobileGrid');
+    if (pfPanel === 'posts') {
+      renderPfCells(loadedPosts);
+    } else if (pfPanel === 'moments') {
+      renderPfCells(loadedPosts.filter(pfHasMedia));
+    } else if (pfPanel === 'shelves') {
+      grid.innerHTML = '<div class="pf-empty">Shelves live in the Bookshelf tab.</div>';
+    } else if (pfPanel === 'saved') {
+      if (!currentUser) {
+        grid.innerHTML = '<div class="pf-empty">Sign in to see saved entries.</div>';
+        return;
+      }
+      var myUsernameCheck = currentUser.email;
+      if (currentUser.user_metadata && currentUser.user_metadata.username) {
+        myUsernameCheck = currentUser.user_metadata.username;
+      }
+      if (myUsernameCheck !== username) {
+        grid.innerHTML = '<div class="pf-empty">Saved entries are private.</div>';
+        return;
+      }
+      if (pfSavedPosts === null) {
+        var savesResult = await sb.from('saves').select('post_id').eq('user_id', currentUser.id);
+        var ids = (savesResult.data || []).map(function (s) { return s.post_id; });
+        if (ids.length === 0) {
+          pfSavedPosts = [];
+        } else {
+          var postsResult = await sb.from('posts').select('*').in('id', ids);
+          pfSavedPosts = postsResult.data || [];
+        }
+      }
+      renderPfCells(pfSavedPosts);
+    }
+  }
+
+  document.querySelectorAll('.pf-toggle').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      document.querySelectorAll('.pf-toggle').forEach(function (b) { b.classList.remove('on'); });
+      this.classList.add('on');
+      pfPanel = this.dataset.panel;
+      renderPfGrid();
+    });
+  });
+
+  document.getElementById('pfMobileGrid').addEventListener('click', function (e) {
+    var cell = e.target.closest('[data-post-id]');
+    if (cell) { openPostModal(cell.dataset.postId); }
+  });
+
+  function computeStreak() {
+    var days = {};
+    try {
+      var bookmarks = JSON.parse(localStorage.getItem('marg:bookmarks') || '[]');
+      bookmarks.forEach(function (b) { if (b.ts) { days[new Date(b.ts).toDateString()] = true; } });
+    } catch (e) {}
+    ['marg:hl:ms014-ch19'].forEach(function (key) {
+      try {
+        var hls = JSON.parse(localStorage.getItem(key) || '[]');
+        hls.forEach(function (h) {
+          var match = /hl_(\d+)_/.exec(h.id || '');
+          if (match) { days[new Date(parseInt(match[1], 10)).toDateString()] = true; }
+        });
+      } catch (e) {}
+    });
+
+    var dayList = Object.keys(days);
+    if (dayList.length === 0) { return 0; }
+
+    var today = new Date();
+    var streak = 0;
+    for (var i = 0; i < 365; i++) {
+      var d = new Date(today);
+      d.setDate(d.getDate() - i);
+      if (days[d.toDateString()]) {
+        streak++;
+      } else if (i > 0) {
+        break;
+      } else {
+        break;
+      }
+    }
+    return streak;
+  }
+
+  function renderStreak() {
+    var n = computeStreak();
+    if (n === 0) { return; }
+    document.getElementById('pfStreakTitle').textContent = n + '-day reading streak';
+    document.getElementById('pfStreakSub').textContent = n === 1 ? 'You marked something today' : "You've marked something " + n + ' days running';
+  }
+  renderStreak();
+
+  async function initProfilePage() {
+    var resolved = await resolveUsername();
+    if (!resolved) { return; }
+    loadProfileInfo();
+    checkIsOwnProfile();
+    loadFollowCounts();
+    loadUserPosts();
+  }
+  initProfilePage();
 
   async function showAuthStatus() {
     var authStatus = document.getElementById('authStatus');
