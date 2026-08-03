@@ -1416,6 +1416,10 @@ body.candle-on {
 @media (min-width: 641px) {
   .mobile-tabbar { display: none; }
 }
+@media (max-width: 640px) {
+  body[data-page-id="index"] .header-tools { display: none; }
+  body[data-page-id="feed"] #messagesNavLink { display: none !important; }
+}
 
 /* -------------------------------------------------
    Mobile write FAB — floating compose button that
