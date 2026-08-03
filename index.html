@@ -7,9 +7,76 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,400;0,600;1,500;1,600&family=Source+Serif+4:ital,wght@0,400;0,600;1,400&family=Caveat:wght@500;600&family=Courier+Prime:wght@400;700&family=Cormorant+Garamond:ital,wght@0,600;1,600&family=Tangerine:wght@700&family=UnifrakturMaguntia&family=MedievalSharp&family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Uncial+Antiqua&family=Great+Vibes&family=Cinzel+Decorative:wght@700&family=Sacramento&family=Spectral:ital,wght@0,600;1,600&family=IM+Fell+English:ital@0;1&family=Special+Elite&family=Cinzel:wght@600&family=Bodoni+Moda:ital,wght@0,600;1,600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="supabase-client.js"></script>
+<style>
+  .idx-desktop { display: block; }
+  .idx-mobile { display: none; }
+
+  @media (max-width: 640px) {
+    .idx-desktop { display: none; }
+
+    .idx-mobile {
+      --surface: #262019;
+      --cream: #F3E6D3;
+      --muted: #A9977F;
+      --amber-c: #E8A15C;
+      --sage: #8FAE93;
+      --divider: rgba(243,230,211,0.08);
+      display: block;
+      font-family: 'Inter', sans-serif;
+      background: var(--ink);
+      min-height: 100vh;
+    }
+
+    .ix-header { padding: 4px 20px 12px; display: flex; align-items: flex-start; justify-content: space-between; }
+    .ix-sub { font-size: 11.5px; color: var(--dust); margin-top: 3px; font-weight: 500; }
+    .ix-header-icons { display: flex; gap: 14px; padding-top: 6px; }
+    .ix-icon-btn { position: relative; width: 20px; height: 20px; color: var(--paper); display: inline-flex; align-items: center; justify-content: center; }
+    .ix-icon-btn svg { width: 100%; height: 100%; display: block; }
+    .ix-badge { position: absolute; top: -4px; right: -5px; width: 13px; height: 13px; border-radius: 50%; background: var(--brass); color: var(--ink); font-size: 8px; font-weight: 700; display: flex; align-items: center; justify-content: center; font-family: 'JetBrains Mono', monospace; }
+
+    .ix-stories { display: flex; gap: 14px; padding: 12px 20px 16px; overflow-x: auto; border-bottom: 1px solid var(--ink-line); text-decoration: none; }
+    .ix-story { flex: none; width: 58px; text-align: center; text-decoration: none; }
+    .ix-story-ring { width: 56px; height: 56px; border-radius: 50%; padding: 2.5px; background: conic-gradient(var(--brass), var(--sage), var(--brass)); display: flex; align-items: center; justify-content: center; margin: 0 auto; }
+    .ix-story-cover { width: 100%; height: 100%; border-radius: 50%; border: 2.5px solid var(--ink); display: flex; align-items: center; justify-content: center; font-family: var(--display); font-weight: 600; font-size: 14px; color: var(--ink); background: linear-gradient(160deg, var(--brass), var(--brass-dim)); }
+    .ix-story-name { font-size: 9.5px; color: var(--dust); margin-top: 6px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .ix-story.you .ix-story-ring { background: var(--ink-line); }
+    .ix-story.you .ix-story-cover { background: var(--ink-raised); color: var(--brass); font-size: 18px; }
+
+    .ix-filter-row { display: flex; gap: 8px; padding: 14px 20px 4px; }
+    .ix-filter-pill { font-family: 'JetBrains Mono', monospace; font-size: 10.5px; padding: 6px 13px; border-radius: 20px; border: 1px solid var(--ink-line); color: var(--dust); background: none; cursor: pointer; }
+    .ix-filter-pill.on { background: var(--brass); color: var(--ink); border-color: var(--brass); font-weight: 600; }
+
+    .ix-label { padding: 16px 20px 8px; font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: 1px; color: var(--dust); text-transform: uppercase; }
+
+    .ix-ms-card { margin: 0 20px 14px; background: var(--ink-raised); border: 1px solid var(--ink-line); border-radius: 18px; padding: 14px; display: flex; gap: 12px; text-decoration: none; }
+    .ix-ms-cover { width: 50px; height: 72px; border-radius: 6px; flex: none; box-shadow: 0 6px 14px -4px rgba(0,0,0,0.5); background: linear-gradient(160deg, var(--brass), var(--ink)); }
+    .ix-ms-info { flex: 1; min-width: 0; }
+    .ix-ms-title { font-family: var(--display); font-weight: 600; font-size: 14.5px; color: var(--paper); line-height: 1.25; }
+    .ix-ms-author { font-size: 11px; color: var(--dust); margin-top: 2px; }
+    .ix-ms-note { font-size: 11px; color: var(--paper-dim); margin-top: 8px; line-height: 1.5; }
+    .ix-progress-track { height: 3px; border-radius: 3px; background: var(--ink-line); margin-top: 9px; overflow: hidden; }
+    .ix-progress-fill { height: 100%; border-radius: 3px; background: var(--brass); }
+    .ix-ms-pill { display: inline-flex; align-items: center; gap: 5px; margin-top: 9px; font-family: 'JetBrains Mono', monospace; font-size: 9.5px; color: var(--brass); border: 1px solid var(--brass-dim); padding: 3px 8px; border-radius: 20px; }
+    .ix-live-dot { width: 5px; height: 5px; border-radius: 50%; background: var(--sage); }
+
+    .ix-post { padding: 14px 20px 16px; border-bottom: 1px solid var(--ink-line); }
+    .ix-post-head { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+    .ix-post-avatar { width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-family: var(--display); font-weight: 600; font-size: 12px; color: var(--ink); background: linear-gradient(135deg, var(--brass), var(--brass-dim)); flex: none; }
+    .ix-post-name { font-size: 13px; font-weight: 600; color: var(--paper); }
+    .ix-post-time { font-family: 'JetBrains Mono', monospace; font-size: 9.5px; color: var(--dust); margin-top: 1px; }
+    .ix-post-caption { font-size: 13px; line-height: 1.55; color: var(--paper); cursor: pointer; }
+    .ix-post-actions { display: flex; align-items: center; gap: 16px; margin-top: 11px; }
+    .ix-action { display: flex; align-items: center; gap: 5px; font-family: 'JetBrains Mono', monospace; font-size: 10.5px; color: var(--dust); background: none; border: none; cursor: pointer; padding: 0; }
+    .ix-action svg { width: 14px; height: 14px; }
+    .ix-action.lit { color: var(--brass); }
+
+    .ix-empty { padding: 16px 20px; color: var(--dust); font-size: 12.5px; }
+  }
+</style>
 </head>
 <body data-page-id="index" data-page-title="Adversaria — Archive">
 
@@ -56,7 +123,7 @@
   </div>
 </div>
 
-<main>
+<main class="idx-desktop">
   <section class="hero shell">
     <p class="hero-stamp">Accession open · reading room quiet</p>
     <h1>A private archive<br>of <em>unfinished</em> hands.</h1>
@@ -168,6 +235,40 @@
       </div>
     </article>
   </section>
+</main>
+
+<main class="idx-mobile">
+  <div class="ix-header">
+    <div>
+      <div style="font-family: var(--display); font-style: italic; font-weight: 600; color: var(--paper); font-size: 19px;">The <span style="color: var(--brass);">Adversaria</span></div>
+      <div class="ix-sub" id="ixSub">&nbsp;</div>
+    </div>
+    <div class="ix-header-icons">
+      <a class="ix-icon-btn" href="bookshelf.html" aria-label="Saved">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 4h16v13H8l-4 4V4z"/></svg>
+      </a>
+      <a class="ix-icon-btn" href="messages.html" aria-label="Messages" id="ixMessagesIcon">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M18 8a6 6 0 00-12 0c0 7-3 9-3 9h18s-3-2-3-9z"/><path d="M13.7 21a2 2 0 01-3.4 0"/></svg>
+      </a>
+      <a class="ix-icon-btn" href="write.html" aria-label="Write">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+      </a>
+    </div>
+  </div>
+
+  <div class="ix-stories" id="ixStories"><div class="ix-empty">Loading&hellip;</div></div>
+
+  <div class="ix-filter-row">
+    <button class="ix-filter-pill on" data-filter="following">FOLLOWING</button>
+    <button class="ix-filter-pill" data-filter="trending">TRENDING</button>
+    <button class="ix-filter-pill" data-filter="club">MY CLUB</button>
+  </div>
+
+  <div class="ix-label">Held in the archive</div>
+  <div id="ixManuscripts"></div>
+
+  <div class="ix-label" id="ixPostsLabel">From people you follow</div>
+  <div id="ixPosts"><div class="ix-empty">Loading&hellip;</div></div>
 </main>
 
 <section class="shell" id="correspondence" style="padding: 60px 0;">
@@ -352,6 +453,226 @@
     }
   }
   showMessagesIcon();
+
+  /* =============================================
+     Mobile Stacks/Home feed
+  ============================================= */
+  function ixEscapeHtml(s) {
+    var d = document.createElement('div');
+    d.textContent = s;
+    return d.innerHTML;
+  }
+
+  var IX_MANUSCRIPTS = [
+    { num: 'ms014-ch19', title: 'The Correspondence of Vane & Ashworth', author: 'from the archive', url: 'manuscript.html' },
+    { num: 'ms013', title: 'A Catalogue of Small Heresies', author: 'from the archive', url: 'index.html#catalog' }
+  ];
+
+  var ixCurrentUser = null;
+  var ixFilter = 'following';
+  var ixAllPosts = [];
+  var ixFollowingSet = {};
+
+  function ixReadingProgress(pageId) {
+    try {
+      var last = JSON.parse(localStorage.getItem('marg:lastRead') || 'null');
+      if (last && last.pageId === pageId) { return Math.round(last.pct); }
+    } catch (e) {}
+    return 0;
+  }
+
+  function renderIxManuscripts() {
+    var wrap = document.getElementById('ixManuscripts');
+    var html = '';
+    IX_MANUSCRIPTS.forEach(function (m) {
+      var pct = ixReadingProgress(m.num);
+      html += '<a class="ix-ms-card" href="' + m.url + '">';
+      html += '<div class="ix-ms-cover"></div>';
+      html += '<div class="ix-ms-info">';
+      html += '<div class="ix-ms-title">' + ixEscapeHtml(m.title) + '</div>';
+      html += '<div class="ix-ms-author">' + ixEscapeHtml(m.author) + '</div>';
+      html += '<div class="ix-progress-track"><div class="ix-progress-fill" style="width:' + pct + '%"></div></div>';
+      if (pct > 0) {
+        html += '<span class="ix-ms-pill"><span class="ix-live-dot"></span>You\'re at ' + pct + '%</span>';
+      } else {
+        html += '<span class="ix-ms-pill" style="color: var(--dust); border-color: var(--ink-line);">Not started</span>';
+      }
+      html += '</div></a>';
+    });
+    wrap.innerHTML = html;
+  }
+
+  async function loadIxStories() {
+    var wrap = document.getElementById('ixStories');
+    var result = await sb.from('posts').select('author_username, created_at').order('created_at', { ascending: false }).limit(30);
+    var posts = result.data || [];
+    var seen = {};
+    var names = [];
+    posts.forEach(function (p) {
+      if (!seen[p.author_username]) {
+        seen[p.author_username] = true;
+        names.push(p.author_username);
+      }
+    });
+    names = names.slice(0, 8);
+
+    var html = '';
+    if (ixCurrentUser) {
+      html += '<a class="ix-story you" href="write.html"><div class="ix-story-ring"><div class="ix-story-cover">+</div></div><div class="ix-story-name">You</div></a>';
+    }
+    if (names.length === 0) {
+      wrap.innerHTML = html || '<div class="ix-empty">No recent activity yet.</div>';
+      return;
+    }
+    names.forEach(function (n) {
+      var initial = n.charAt(0).toUpperCase();
+      html += '<a class="ix-story" href="profile.html?username=' + encodeURIComponent(n) + '"><div class="ix-story-ring"><div class="ix-story-cover">' + ixEscapeHtml(initial) + '</div></div><div class="ix-story-name">' + ixEscapeHtml(n) + '</div></a>';
+    });
+    wrap.innerHTML = html;
+  }
+
+  async function loadIxSub() {
+    var sub = document.getElementById('ixSub');
+    var result = await sb.from('profiles').select('id', { count: 'exact', head: true });
+    var count = (result.count !== null && result.count !== undefined) ? result.count : null;
+    sub.textContent = count ? (count + (count === 1 ? ' reader in the archive' : ' readers in the archive')) : 'Reading room quiet';
+  }
+
+  function ixFormatTime(dateStr) {
+    var d = new Date(dateStr);
+    if (isNaN(d.getTime())) { return ''; }
+    var now = new Date();
+    var sameDay = d.toDateString() === now.toDateString();
+    var yesterday = new Date(now); yesterday.setDate(yesterday.getDate() - 1);
+    var isYesterday = d.toDateString() === yesterday.toDateString();
+    if (sameDay) {
+      var hours = d.getHours(); var minutes = d.getMinutes();
+      var ampm = hours >= 12 ? 'PM' : 'AM'; var h12 = hours % 12; if (h12 === 0) { h12 = 12; }
+      var mm = minutes < 10 ? '0' + minutes : minutes;
+      return 'TODAY, ' + h12 + ':' + mm + ' ' + ampm;
+    }
+    if (isYesterday) { return 'YESTERDAY'; }
+    var months = ['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'];
+    return months[d.getMonth()] + ' ' + d.getDate();
+  }
+
+  async function ixLikeCount(postId) {
+    var result = await sb.from('likes').select('id').eq('post_id', postId);
+    return result.data ? result.data.length : 0;
+  }
+  async function ixCommentCount(postId) {
+    var result = await sb.from('comments').select('id').eq('post_id', postId);
+    return result.data ? result.data.length : 0;
+  }
+  async function ixIsLiked(postId) {
+    if (!ixCurrentUser) { return false; }
+    var result = await sb.from('likes').select('id').eq('post_id', postId).eq('user_id', ixCurrentUser.id);
+    return result.data && result.data.length > 0;
+  }
+
+  async function renderIxPosts() {
+    var wrap = document.getElementById('ixPosts');
+    var label = document.getElementById('ixPostsLabel');
+
+    if (ixFilter === 'club') {
+      label.textContent = 'My club';
+      wrap.innerHTML = '<div class="ix-empty">Reading clubs aren\'t open yet &mdash; coming soon.</div>';
+      return;
+    }
+
+    var items = ixAllPosts.slice();
+    if (ixFilter === 'following') {
+      label.textContent = 'From people you follow';
+      if (!ixCurrentUser) {
+        wrap.innerHTML = '<div class="ix-empty">Sign in and follow authors to see their posts here.</div>';
+        return;
+      }
+      items = items.filter(function (p) { return ixFollowingSet[p.author_username]; });
+    } else {
+      label.textContent = 'Trending in the archive';
+      var counts = {};
+      for (var i = 0; i < items.length; i++) {
+        counts[items[i].id] = await ixLikeCount(items[i].id);
+      }
+      items.sort(function (a, b) { return (counts[b.id] || 0) - (counts[a.id] || 0); });
+    }
+
+    if (items.length === 0) {
+      wrap.innerHTML = '<div class="ix-empty">Nothing here yet.</div>';
+      return;
+    }
+
+    var html = '';
+    for (var j = 0; j < items.length; j++) {
+      var p = items[j];
+      var initial = p.author_username.charAt(0).toUpperCase();
+      html += '<div class="ix-post" data-post-id="' + p.id + '">';
+      html += '<div class="ix-post-head"><div class="ix-post-avatar">' + ixEscapeHtml(initial) + '</div><div><div class="ix-post-name">' + ixEscapeHtml(p.author_username) + '</div><div class="ix-post-time">' + ixFormatTime(p.created_at) + '</div></div></div>';
+      html += '<div class="ix-post-caption">' + ixEscapeHtml(p.title) + '</div>';
+      html += '<div class="ix-post-actions">';
+      html += '<button class="ix-action ix-like-btn" data-post-id="' + p.id + '"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2c1 3-2 4-2 7a4 4 0 008 0c0-1-.5-2-1-2 1.5 2 1 6-2 7.5-4 2-9-.5-9-5.5 0-4 3-5 3-9 1 0 2.5.5 3 2z"/></svg><span class="ix-like-count">0</span></button>';
+      html += '<div class="ix-action"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M4 4h16v12H7l-3 3V4z"/></svg><span class="ix-comment-count">0</span></div>';
+      html += '</div></div>';
+    }
+    wrap.innerHTML = html;
+
+    document.querySelectorAll('.ix-post[data-post-id]').forEach(function (el) {
+      var pid = el.dataset.postId;
+      var likeSpan = el.querySelector('.ix-like-count');
+      var commentSpan = el.querySelector('.ix-comment-count');
+      ixLikeCount(pid).then(function (n) { likeSpan.textContent = n; });
+      ixCommentCount(pid).then(function (n) { commentSpan.textContent = n; });
+      ixIsLiked(pid).then(function (liked) {
+        if (liked) { el.querySelector('.ix-like-btn').classList.add('lit'); }
+      });
+    });
+
+    document.querySelectorAll('.ix-like-btn').forEach(function (btn) {
+      btn.addEventListener('click', async function (e) {
+        e.stopPropagation();
+        if (!ixCurrentUser) { alert('Sign in to like posts.'); return; }
+        var pid = this.dataset.postId;
+        var existing = await sb.from('likes').select('id').eq('post_id', pid).eq('user_id', ixCurrentUser.id);
+        var countSpan = this.querySelector('.ix-like-count');
+        if (existing.data && existing.data.length > 0) {
+          await sb.from('likes').delete().eq('post_id', pid).eq('user_id', ixCurrentUser.id);
+          this.classList.remove('lit');
+        } else {
+          await sb.from('likes').insert({ post_id: pid, user_id: ixCurrentUser.id });
+          this.classList.add('lit');
+        }
+        countSpan.textContent = await ixLikeCount(pid);
+      });
+    });
+  }
+
+  document.querySelectorAll('.ix-filter-pill').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      document.querySelectorAll('.ix-filter-pill').forEach(function (b) { b.classList.remove('on'); });
+      this.classList.add('on');
+      ixFilter = this.dataset.filter;
+      renderIxPosts();
+    });
+  });
+
+  async function initIxHome() {
+    var userResult = await sb.auth.getUser();
+    ixCurrentUser = userResult.data.user;
+
+    if (ixCurrentUser) {
+      var followResult = await sb.from('follows').select('following_username').eq('follower_id', ixCurrentUser.id);
+      (followResult.data || []).forEach(function (f) { ixFollowingSet[f.following_username] = true; });
+    }
+
+    var postsResult = await sb.from('posts').select('*').order('created_at', { ascending: false });
+    ixAllPosts = postsResult.data || [];
+
+    renderIxManuscripts();
+    loadIxStories();
+    loadIxSub();
+    renderIxPosts();
+  }
+  initIxHome();
 </script>
 </body>
 </html>
