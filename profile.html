@@ -74,7 +74,6 @@
       <a href="authors.html">Authors</a>
     </nav>
     <button class="menu-toggle-btn" id="menuToggleBtn">&#9776;</button>
-    <a class="icon-btn" href="messages.html" title="Messages" aria-label="Messages" id="messagesNavLink" style="display: none; margin-right: 8px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 2 11 13"/><path d="M22 2 15 22l-4-9-9-4z"/></svg><span class="icon-label">Messages</span></a>
     <button class="icon-btn" id="settingsToggle" title="Reading settings" aria-label="Reading settings" style="margin-right: 8px;">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
       <span class="icon-label">Aa</span>
@@ -195,10 +194,6 @@
     <span class="tb-dot"></span>
   </a>
 </nav>
-
-<a href="write.html" class="mobile-fab" aria-label="Write">
-  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
-</a>
 
 <!-- Theme picker -->
 <div class="modal-overlay" id="themeModalOverlay" hidden></div>
@@ -871,7 +866,6 @@
         uname = user.user_metadata.username;
       }
       authStatus.innerHTML = 'Signed in as <strong style="color: var(--brass);">' + uname + '</strong> &middot; <a href="#" id="logoutBtn" style="color: var(--brass);">Log out</a>';
-      document.getElementById('messagesNavLink').style.display = 'inline-flex';
       document.getElementById('logoutBtn').addEventListener('click', async function (e) {
         e.preventDefault();
         await sb.auth.signOut();
@@ -879,7 +873,6 @@
       });
     } else {
       authStatus.innerHTML = '<a href="account.html" style="color: var(--brass);">Sign in</a>';
-      document.getElementById('messagesNavLink').style.display = 'none';
     }
   }
   showAuthStatus();
