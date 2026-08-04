@@ -75,6 +75,10 @@
     </nav>
     <button class="menu-toggle-btn" id="menuToggleBtn">&#9776;</button>
     <a class="icon-btn" href="messages.html" title="Messages" aria-label="Messages" id="messagesNavLink" style="display: none; margin-right: 8px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 2 11 13"/><path d="M22 2 15 22l-4-9-9-4z"/></svg><span class="icon-label">Messages</span></a>
+    <button class="icon-btn" id="settingsToggle" title="Reading settings" aria-label="Reading settings" style="margin-right: 8px;">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+      <span class="icon-label">Aa</span>
+    </button>
     <span id="authStatus" style="color: var(--paper-dim); font-size: 0.85rem;"></span>
   </div>
 </header>
@@ -169,10 +173,6 @@
   </div>
 </div>
 
-<a href="write.html" class="mobile-fab" aria-label="Write">
-  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
-</a>
-
 <nav class="mobile-tabbar" aria-label="Main navigation">
   <a href="index.html" data-tab="stacks">
     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3"><path d="M4 19.5V5a2 2 0 0 1 2-2h13v16H6a2 2 0 0 0-2 2.5z"/></svg>
@@ -195,6 +195,110 @@
     <span class="tb-dot"></span>
   </a>
 </nav>
+
+<a href="write.html" class="mobile-fab" aria-label="Write">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+</a>
+
+<!-- Theme picker -->
+<div class="modal-overlay" id="themeModalOverlay" hidden></div>
+<div class="theme-modal" id="themeModal" role="dialog" aria-modal="true" aria-label="Choose a theme" hidden>
+  <div class="settings-head">
+    <h2>Choose a theme</h2>
+    <button class="icon-btn" id="themeModalClose" aria-label="Close theme picker">&times;</button>
+  </div>
+
+  <div class="theme-grid-section">
+    <h3 class="theme-grid-heading">The Archive</h3>
+    <div class="theme-grid">
+      <button data-theme="lamplit" class="theme-swatch" style="--sw:#1B1712"><span>Lamplit</span></button>
+      <button data-theme="night" class="theme-swatch" style="--sw:#000000"><span>Night</span></button>
+      <button data-theme="sepia" class="theme-swatch" style="--sw:#EBDDBD"><span>Sepia</span></button>
+      <button data-theme="paper" class="theme-swatch" style="--sw:#F6F1E4"><span>Paper</span></button>
+      <button data-theme="forest" class="theme-swatch" style="--sw:#1A2E22"><span>Forest</span></button>
+      <button data-theme="midnight-rose" class="theme-swatch" style="--sw:#2B1420"><span>Midnight Rose</span></button>
+    </div>
+  </div>
+
+  <div class="theme-grid-section">
+    <h3 class="theme-grid-heading">Studies in Contrast</h3>
+    <div class="theme-grid">
+      <button data-theme="bone-ash" class="theme-swatch" style="--sw:#1A1A1A"><span>Bone &amp; Ash</span></button>
+      <button data-theme="ember-soot" class="theme-swatch" style="--sw:#1A1210"><span>Ember &amp; Soot</span></button>
+    </div>
+  </div>
+
+  <div class="theme-grid-section">
+    <h3 class="theme-grid-heading">Period Rooms</h3>
+    <div class="theme-grid">
+      <button data-theme="victorian-parlour" class="theme-swatch" style="--sw:#22121A"><span>Victorian Parlour</span></button>
+      <button data-theme="gothic-spire" class="theme-swatch" style="--sw:#14171B"><span>Gothic Spire</span></button>
+      <button data-theme="architects-blueprint" class="theme-swatch" style="--sw:#0B1E3D"><span>Architect's Blueprint</span></button>
+      <button data-theme="illuminated-manuscript" class="theme-swatch" style="--sw:#17131E"><span>Illuminated Manuscript</span></button>
+      <button data-theme="absinthe-nouveau" class="theme-swatch" style="--sw:#0F1F16"><span>Absinthe Nouveau</span></button>
+      <button data-theme="observatory" class="theme-swatch" style="--sw:#0A0E1C"><span>Observatory</span></button>
+      <button data-theme="apothecary" class="theme-swatch" style="--sw:#161A12"><span>Apothecary</span></button>
+      <button data-theme="brass-gearwork" class="theme-swatch" style="--sw:#1B140F"><span>Brass &amp; Gearwork</span></button>
+      <button data-theme="marble-atrium" class="theme-swatch" style="--sw:#1A1B1D"><span>Marble Atrium</span></button>
+      <button data-theme="crimson-study" class="theme-swatch" style="--sw:#150C0D"><span>Crimson Study</span></button>
+    </div>
+  </div>
+</div>
+
+<!-- Reading settings -->
+<div class="modal-overlay" id="settingsOverlay" hidden></div>
+<aside class="settings-drawer" id="settingsDrawer" aria-label="Reading settings" hidden>
+  <div class="settings-head">
+    <h2>Reading settings</h2>
+    <button class="icon-btn" id="settingsClose" aria-label="Close settings">&times;</button>
+  </div>
+
+  <div class="settings-group">
+    <span class="settings-label">Theme &amp; brightness</span>
+    <button type="button" class="theme-picker-trigger" id="themePickerOpen">
+      <span class="theme-picker-dot" id="themePickerDot" style="--sw:#1B1712"></span>
+      <span id="themePickerName">Lamplit</span>
+      <span class="theme-picker-arrow">Change &rarr;</span>
+    </button>
+  </div>
+
+  <div class="settings-group">
+    <span class="settings-label">Dim overlay <span class="range-value">0%</span></span>
+    <input type="range" id="dimmerRange" min="0" max="70" step="5" value="0">
+  </div>
+  <div class="settings-group">
+    <span class="settings-label">Typeface</span>
+    <div class="pill-row" id="fontPills">
+      <button data-font="serif" class="pill">Serif</button>
+      <button data-font="classic" class="pill">Classic</button>
+      <button data-font="sans" class="pill">Sans</button>
+      <button data-font="mono" class="pill">Mono</button>
+    </div>
+    <label class="settings-check"><input type="checkbox" id="dyslexicToggle"> Easy-read spacing</label>
+  </div>
+
+  <div class="settings-group">
+    <span class="settings-label">Text size <span class="range-value">18px</span></span>
+    <input type="range" id="fontSizeRange" min="14" max="26" step="1" value="18">
+  </div>
+
+  <div class="settings-group">
+    <span class="settings-label">Line spacing <span class="range-value">1.85</span></span>
+    <input type="range" id="lineHeightRange" min="1.3" max="2.3" step="0.05" value="1.85">
+  </div>
+
+  <div class="settings-group">
+    <span class="settings-label">Column width <span class="range-value">62ch</span></span>
+    <input type="range" id="measureRange" min="46" max="86" step="2" value="62">
+  </div>
+
+  <div class="settings-group">
+    <span class="settings-label">Your marks</span>
+    <div id="markList" class="mark-list"></div>
+  </div>
+
+  <button class="settings-reset" id="settingsReset">Reset to defaults</button>
+</aside>
 
 <script src="reader.js"></script>
 <script>
