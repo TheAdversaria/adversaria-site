@@ -19,7 +19,9 @@
     <nav class="site-nav">
       <a href="index.html">Archive</a>
       <a href="feed.html">Reading Room</a>
-      <a href="authors.html">Authors</a>
+      <a href="moments.html">Moments</a>
+      <a href="explore.html">Explore</a>
+      <a href="bookshelf.html">Bookshelf</a>
     </nav>
     <button class="menu-toggle-btn" id="menuToggleBtn">&#9776;</button>
     <a class="icon-btn" href="messages.html" title="Messages" aria-label="Messages" id="messagesNavLink" style="display: none; margin-right: 8px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 2 11 13"/><path d="M22 2 15 22l-4-9-9-4z"/></svg><span class="icon-label">Messages</span></a>
@@ -32,6 +34,9 @@
   <div style="clear: both; padding-top: 20px;">
     <a href="index.html">Archive</a>
     <a href="feed.html">Reading Room</a>
+    <a href="moments.html">Moments</a>
+    <a href="explore.html">Explore</a>
+    <a href="bookshelf.html">Bookshelf</a>
     <a href="authors.html">Authors</a>
     <a href="edit-profile.html">Edit Profile</a>
     <a href="account.html">Account</a>
@@ -42,7 +47,8 @@
 </div>
 
 <main class="shell" style="max-width: 640px; margin: 60px auto; padding: 0 20px;">
-  <h1 style="font-family: var(--display); font-style: italic; color: var(--paper); font-size: 1.8rem;">Add to the archive</h1>
+  <h1 id="writeHeading" style="font-family: var(--display); font-style: italic; color: var(--paper); font-size: 1.8rem;">Add to the archive</h1>
+  <p id="writeSub" style="color: var(--paper-dim); font-size: 0.85rem; margin-top: -8px;"></p>
 
   <div id="notSignedIn" style="margin-top: 20px; display: none;">
     <p style="color: var(--paper-dim);">You need to be signed in to write here.</p>
@@ -93,6 +99,20 @@
 <script src="reader.js"></script>
 <script>
   var currentUser = null;
+
+  var params = new URLSearchParams(window.location.search);
+  var postType = params.get('type');
+  if (['margin', 'verse', 'photo', 'reel'].indexOf(postType) === -1) {
+    postType = 'verse';
+  }
+  var WRITE_COPY = {
+    margin:  { h: 'Add a margin',  s: 'Short marks and marginalia — these appear on the Archive page.' },
+    verse:   { h: 'Add a verse',   s: 'Longer writing for the Reading Room.' },
+    photo:   { h: 'Post a photo',  s: 'Goes to Moments. Add at least one image below.' },
+    reel:    { h: 'Post a reel',   s: 'Goes to Moments. Add a video link below.' }
+  };
+  document.getElementById('writeHeading').textContent = WRITE_COPY[postType].h;
+  document.getElementById('writeSub').textContent = WRITE_COPY[postType].s;
 
   async function checkAuth() {
     var notSignedIn = document.getElementById('notSignedIn');
@@ -221,7 +241,8 @@
       title: title,
       content: content,
       author_username: username,
-      user_id: currentUser.id
+      user_id: currentUser.id,
+      post_type: postType
     };
     if (imageUrls.length > 0) {
       insertData.image_urls = imageUrls;

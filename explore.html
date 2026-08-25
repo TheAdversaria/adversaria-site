@@ -124,9 +124,20 @@
     <nav class="site-nav">
       <a href="index.html">Archive</a>
       <a href="feed.html">Reading Room</a>
-      <a href="authors.html" class="is-active">Authors</a>
+      <a href="moments.html">Moments</a>
+      <a href="explore.html" class="is-active">Explore</a>
+      <a href="bookshelf.html">Bookshelf</a>
     </nav>
     <button class="menu-toggle-btn" id="menuToggleBtn">&#9776;</button>
+    <div class="write-menu-wrap">
+      <button type="button" class="write-pill" id="writeMenuBtn">+ Write</button>
+      <div class="write-menu" id="writeMenu" hidden>
+        <a href="write.html?type=margin">Add a margin<small>appears on the Archive</small></a>
+        <a href="write.html?type=verse">Add a verse<small>appears in the Reading Room</small></a>
+        <a href="write.html?type=photo">Post a photo<small>appears in Moments</small></a>
+        <a href="write.html?type=reel">Post a reel<small>appears in Moments</small></a>
+      </div>
+    </div>
     <a class="icon-btn" href="messages.html" title="Messages" aria-label="Messages" id="messagesNavLink" style="display: none; margin-right: 8px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 2 11 13"/><path d="M22 2 15 22l-4-9-9-4z"/></svg><span class="icon-label">Messages</span></a>
     <span id="authStatus" style="color: var(--paper-dim); font-size: 0.85rem;"></span>
   </div>
@@ -137,6 +148,9 @@
   <div style="clear: both; padding-top: 20px;">
     <a href="index.html">Archive</a>
     <a href="feed.html">Reading Room</a>
+    <a href="moments.html">Moments</a>
+    <a href="explore.html">Explore</a>
+    <a href="bookshelf.html">Bookshelf</a>
     <a href="authors.html">Authors</a>
     <a href="write.html">Write</a>
     <a href="edit-profile.html">Edit Profile</a>

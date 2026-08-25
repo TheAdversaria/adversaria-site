@@ -89,10 +89,21 @@
     <nav class="site-nav">
       <a href="index.html" class="is-active">Archive</a>
       <a href="feed.html">Reading Room</a>
-      <a href="authors.html">Authors</a>
+      <a href="moments.html">Moments</a>
+      <a href="explore.html">Explore</a>
+      <a href="bookshelf.html">Bookshelf</a>
     </nav>
     <button class="menu-toggle-btn" id="menuToggleBtn">&#9776;</button>
     <div class="header-tools">
+      <div class="write-menu-wrap">
+      <button type="button" class="write-pill" id="writeMenuBtn">+ Write</button>
+      <div class="write-menu" id="writeMenu" hidden>
+        <a href="write.html?type=margin">Add a margin<small>appears on the Archive</small></a>
+        <a href="write.html?type=verse">Add a verse<small>appears in the Reading Room</small></a>
+        <a href="write.html?type=photo">Post a photo<small>appears in Moments</small></a>
+        <a href="write.html?type=reel">Post a reel<small>appears in Moments</small></a>
+      </div>
+    </div>
       <a class="icon-btn" href="messages.html" title="Messages" aria-label="Messages" id="messagesNavLink" style="display: none;">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 2 11 13"/><path d="M22 2 15 22l-4-9-9-4z"/></svg>
         <span class="icon-label">Messages</span>
@@ -114,6 +125,9 @@
   <div style="clear: both; padding-top: 20px;">
     <a href="index.html">Archive</a>
     <a href="feed.html">Reading Room</a>
+    <a href="moments.html">Moments</a>
+    <a href="explore.html">Explore</a>
+    <a href="bookshelf.html">Bookshelf</a>
     <a href="authors.html">Authors</a>
     <a href="write.html">Write</a>
     <a href="edit-profile.html">Edit Profile</a>
@@ -141,6 +155,11 @@
       <div><dt>Languages of note</dt><dd>03</dd></div>
       <div><dt>Archive opened</dt><dd>2024</dd></div>
     </dl>
+
+    <div class="streak-strip" id="heroStreak" hidden>
+      <span class="streak-n" id="heroStreakN"></span>
+      <span class="streak-s" id="heroStreakS"></span>
+    </div>
   </section>
 
   <section class="continue-strip shell" id="continueStrip" hidden>
@@ -235,6 +254,14 @@
         <div class="seal">MS</div>
       </div>
     </article>
+  </section>
+
+  <section class="catalog shell" id="margins" style="padding-top: 0;">
+    <div class="catalog-head">
+      <h2>From the margins</h2>
+      <span class="catalog-filter">short marks left by readers</span>
+    </div>
+    <div id="marginsList"></div>
   </section>
 </main>
 
@@ -454,6 +481,81 @@
     }
   }
   showMessagesIcon();
+
+  /* Reading streak — same computation as profile.html, shown on the homepage too */
+  function computeHeroStreak() {
+    var days = {};
+    try {
+      var bookmarks = JSON.parse(localStorage.getItem('marg:bookmarks') || '[]');
+      bookmarks.forEach(function (b) { if (b.ts) { days[new Date(b.ts).toDateString()] = true; } });
+    } catch (e) {}
+    try {
+      var hls = JSON.parse(localStorage.getItem('marg:hl:ms014-ch19') || '[]');
+      hls.forEach(function (h) {
+        var match = /hl_(\d+)_/.exec(h.id || '');
+        if (match) { days[new Date(parseInt(match[1], 10)).toDateString()] = true; }
+      });
+    } catch (e) {}
+
+    var dayList = Object.keys(days);
+    if (dayList.length === 0) { return 0; }
+
+    var today = new Date();
+    var streak = 0;
+    for (var i = 0; i < 365; i++) {
+      var d = new Date(today);
+      d.setDate(d.getDate() - i);
+      if (days[d.toDateString()]) {
+        streak++;
+      } else {
+        break;
+      }
+    }
+    return streak;
+  }
+
+  function renderHeroStreak() {
+    var n = computeHeroStreak();
+    if (n === 0) { return; }
+    document.getElementById('heroStreakN').textContent = n;
+    document.getElementById('heroStreakS').textContent = (n === 1 ? 'day streak' : 'day streak') + ' \u00B7 you marked something ' + (n === 1 ? 'today' : n + ' days running');
+    document.getElementById('heroStreak').hidden = false;
+  }
+  renderHeroStreak();
+
+  /* From the margins — reader-submitted short entries, shown under the static catalog */
+  function idxEscapeHtml(s) {
+    var d = document.createElement('div');
+    d.textContent = s;
+    return d.innerHTML;
+  }
+  function idxFormatDate(dateStr) {
+    var d = new Date(dateStr);
+    if (isNaN(d.getTime())) { return ''; }
+    var months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    return months[d.getMonth()] + ' ' + d.getDate();
+  }
+  async function loadMargins() {
+    var wrap = document.getElementById('marginsList');
+    var result = await sb.from('posts').select('*').eq('post_type', 'margin').order('created_at', { ascending: false }).limit(8);
+    if (result.error || !result.data || result.data.length === 0) {
+      wrap.innerHTML = '<p style="color: var(--paper-dim); padding: 24px 0;">Nothing left in the margins yet.</p>';
+      return;
+    }
+    var html = '';
+    result.data.forEach(function (p) {
+      html += '<article class="entry">';
+      html += '<div class="entry-num">MARGIN<small>' + idxFormatDate(p.created_at) + '</small></div>';
+      html += '<div class="entry-main">';
+      html += '<a class="entry-title-link" href="profile.html?username=' + encodeURIComponent(p.author_username) + '"><h3 class="entry-title" style="font-size: 1.15rem;">' + idxEscapeHtml(p.title || p.content.slice(0, 60)) + '</h3></a>';
+      html += '<p class="entry-desc">' + idxEscapeHtml(p.content) + '</p>';
+      html += '</div>';
+      html += '<div class="entry-margin"><span class="entry-status">by ' + idxEscapeHtml(p.author_username) + '</span></div>';
+      html += '</article>';
+    });
+    wrap.innerHTML = html;
+  }
+  loadMargins();
 
   /* =============================================
      Mobile Stacks/Home feed

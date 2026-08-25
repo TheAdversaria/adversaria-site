@@ -745,9 +745,32 @@
     });
   }
 
+  /* ---------------------------------------------------------
+     9b. Write menu — the "+ Write" pill's dropdown of 4 post
+         types (desktop only; mobile uses its own FAB, untouched)
+  --------------------------------------------------------- */
+  function initWriteMenu() {
+    const btn = document.getElementById("writeMenuBtn");
+    const menu = document.getElementById("writeMenu");
+    if (!btn || !menu) return;
+    btn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      menu.hidden = !menu.hidden;
+    });
+    document.addEventListener("click", (e) => {
+      if (!menu.hidden && !menu.contains(e.target) && e.target !== btn) {
+        menu.hidden = true;
+      }
+    });
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape") menu.hidden = true;
+    });
+  }
+
   document.addEventListener("DOMContentLoaded", function () {
     applySettings();
     initSettingsControls();
+    initWriteMenu();
 
     wireDrawer(["searchToggle", "searchToggle2"], "searchOverlay", "searchOverlay", ["searchClose"]);
     wireDrawer(["settingsToggle", "settingsToggle2"], "settingsOverlay", "settingsDrawer", ["settingsClose"]);

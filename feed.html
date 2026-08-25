@@ -11,12 +11,38 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="supabase-client.js"></script>
 <style>
-  .mo-desktop { display: block; }
+  .rr-desktop { display: block; }
   .mo-mobile { display: none; }
   .mo-modal-overlay { display: none; }
 
+  .rr-page-head { display: flex; align-items: baseline; justify-content: space-between; gap: 20px; margin-bottom: 22px; }
+  .rr-page-sub { color: var(--dust); font-size: 0.78rem; letter-spacing: 0.04em; }
+
+  .rr-toolbar { display: flex; gap: 16px; align-items: center; margin-bottom: 30px; flex-wrap: wrap; }
+  .rr-search-box { flex: 1; min-width: 220px; display: flex; align-items: center; gap: 9px; background: var(--ink-raised); border: 1px solid var(--ink-line); border-radius: 20px; padding: 9px 16px; }
+  .rr-search-box svg { width: 15px; height: 15px; color: var(--dust); flex: none; }
+  .rr-search-box input { flex: 1; background: none; border: none; outline: none; color: var(--paper); font-family: var(--body); font-size: 0.88rem; }
+  .rr-search-box input::placeholder { color: var(--dust); }
+  .rr-sort-row { display: flex; gap: 8px; flex: none; }
+  .rr-sort-btn { font-family: var(--body); font-size: 0.76rem; padding: 8px 15px; border-radius: 16px; border: 1px solid var(--ink-line); background: none; color: var(--paper-dim); cursor: pointer; }
+  .rr-sort-btn.on { background: var(--brass); color: var(--ink); border-color: var(--brass); font-weight: 600; }
+
+  .rr-grid { columns: 3 260px; column-gap: 20px; }
+  .rr-grid > article { break-inside: avoid; margin-bottom: 20px; border: 1px solid var(--ink-line); border-radius: 8px; overflow: hidden; background: var(--ink-raised); }
+  .rr-grid .rr-body { padding: 16px 18px 18px; }
+  .rr-grid .rr-media-wrap { background: var(--ink); }
+  .rr-grid .rr-textcard { padding: 20px 18px 6px; }
+  .rr-grid .rr-textcard h2 { font-family: var(--display); color: var(--paper); font-size: 1.1rem; margin: 0; }
+  .rr-grid h2.rr-title { font-family: var(--display); color: var(--paper); font-size: 1.05rem; margin: 0; }
+  .rr-grid .rr-by { color: var(--brass); font-size: 0.78rem; display: block; margin-top: 8px; }
+  .rr-grid .rr-content { color: var(--paper-dim); margin-top: 8px; font-size: 0.86rem; line-height: 1.55; white-space: pre-wrap; }
+  .rr-grid .rr-actions { margin-top: 12px; display: flex; gap: 8px; flex-wrap: wrap; }
+  .rr-grid .rr-actions button { font-family: var(--mono, var(--body)); font-size: 0.72rem; }
+
+  @media (max-width: 1000px) { .rr-grid { columns: 2 240px; } }
+
   @media (max-width: 640px) {
-    .mo-desktop { display: none; }
+    .rr-desktop { display: none; }
 
     .mo-mobile {
       --bg-app: var(--ink);
@@ -84,9 +110,20 @@
     <nav class="site-nav">
       <a href="index.html">Archive</a>
       <a href="feed.html" class="is-active">Reading Room</a>
-      <a href="authors.html">Authors</a>
+      <a href="moments.html">Moments</a>
+      <a href="explore.html">Explore</a>
+      <a href="bookshelf.html">Bookshelf</a>
     </nav>
     <button class="menu-toggle-btn" id="menuToggleBtn">&#9776;</button>
+    <div class="write-menu-wrap">
+      <button type="button" class="write-pill" id="writeMenuBtn">+ Write</button>
+      <div class="write-menu" id="writeMenu" hidden>
+        <a href="write.html?type=margin">Add a margin<small>appears on the Archive</small></a>
+        <a href="write.html?type=verse">Add a verse<small>appears in the Reading Room</small></a>
+        <a href="write.html?type=photo">Post a photo<small>appears in Moments</small></a>
+        <a href="write.html?type=reel">Post a reel<small>appears in Moments</small></a>
+      </div>
+    </div>
     <a class="icon-btn" href="messages.html" title="Messages" aria-label="Messages" id="messagesNavLink" style="display: none; margin-right: 8px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 2 11 13"/><path d="M22 2 15 22l-4-9-9-4z"/></svg><span class="icon-label">Messages</span></a>
     <span id="authStatus" style="color: var(--paper-dim); font-size: 0.85rem;"></span>
   </div>
@@ -97,6 +134,9 @@
   <div style="clear: both; padding-top: 20px;">
     <a href="index.html">Archive</a>
     <a href="feed.html">Reading Room</a>
+    <a href="moments.html">Moments</a>
+    <a href="explore.html">Explore</a>
+    <a href="bookshelf.html">Bookshelf</a>
     <a href="authors.html">Authors</a>
     <a href="write.html">Write</a>
     <a href="edit-profile.html">Edit Profile</a>
@@ -107,14 +147,22 @@
   </div>
 </div>
 
-<main class="shell mo-desktop" style="max-width: 720px; margin: 60px auto; padding: 0 20px;">
-  <h1 style="font-family: var(--display); font-style: italic; color: var(--paper); font-size: 1.8rem;">The Reading Room</h1>
-  <input id="feedSearch" type="text" placeholder="Search the Reading Room..." style="width: 100%; padding: 10px; margin-top: 16px; background: var(--ink-raised); border: 1px solid var(--ink-line); color: var(--paper); border-radius: 4px;">
-  <div style="margin-top: 12px;">
-    <button id="sortNewest" style="padding: 6px 14px; background: var(--brass); border: none; color: var(--ink); border-radius: 4px; cursor: pointer; margin-right: 8px;">Newest</button>
-    <button id="sortOldest" style="padding: 6px 14px; background: none; border: 1px solid var(--brass); color: var(--brass); border-radius: 4px; cursor: pointer;">Oldest</button>
+<main class="shell rr-desktop" style="max-width: 1040px; margin: 60px auto; padding: 0 20px;">
+  <div class="rr-page-head">
+    <h1 style="font-family: var(--display); font-style: italic; color: var(--paper); font-size: 1.8rem; margin: 0;">The Reading Room</h1>
+    <span class="rr-page-sub">what people are sharing across the archive</span>
   </div>
-  <div id="postsList" style="margin-top: 30px;"></div>
+  <div class="rr-toolbar">
+    <div class="rr-search-box">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+      <input id="feedSearch" type="text" placeholder="Search the Reading Room…">
+    </div>
+    <div class="rr-sort-row">
+      <button id="sortNewest" class="rr-sort-btn on">Newest</button>
+      <button id="sortOldest" class="rr-sort-btn">Oldest</button>
+    </div>
+  </div>
+  <div id="postsList" class="rr-grid"></div>
 </main>
 
 <main class="mo-mobile">
@@ -208,10 +256,10 @@
   }
 
   function buildVideoHtml(embedUrl, title) {
-    var out = '<div style="border-radius: 6px; overflow: hidden; margin-bottom: 12px; background: #000;">';
+    var out = '<div class="rr-media-wrap">';
     out += '<iframe src="' + embedUrl + '" style="width: 100%; aspect-ratio: 16 / 9; border: none; display: block;" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>';
     out += '</div>';
-    out += '<h2 style="font-family: var(--display); color: var(--paper); font-size: 1.3rem;">' + escapeHtml(title) + '</h2>';
+    out += '<div class="rr-textcard"><h2 class="rr-title">' + escapeHtml(title) + '</h2></div>';
     return out;
   }
 
@@ -224,7 +272,7 @@
   }
   if (images.length === 0) { return ''; }
 
-  var out = '<div class="postGallery" data-post-id="' + p.id + '" style="position: relative; border-radius: 6px; overflow: hidden; margin-bottom: 12px; background: var(--ink-raised);">';
+  var out = '<div class="postGallery" data-post-id="' + p.id + '" style="position: relative; overflow: hidden; background: var(--ink-raised);">';
   out += '<div class="galleryTrack" style="display: flex; overflow-x: auto; scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch;">';
   for (var i = 0; i < images.length; i++) {
     out += '<img src="' + escapeHtml(images[i]) + '" style="flex: none; width: 100%; scroll-snap-align: start; display: block; aspect-ratio: 4 / 3; object-fit: cover;">';
@@ -247,28 +295,37 @@
 
  function buildArticleHtml(p) {
   var out = '';
-  out += '<article style="border-bottom: 1px solid var(--ink-line); padding: 20px 0;" data-post-id="' + p.id + '">';
+  out += '<article data-post-id="' + p.id + '">';
   var videoEmbedUrl = getVideoEmbedUrl(p.video_url);
+  var hasMedia = false;
   if (videoEmbedUrl) {
     out += buildVideoHtml(videoEmbedUrl, p.title);
+    hasMedia = true;
   } else {
     var galleryHtml = buildGalleryHtml(p);
     if (galleryHtml) {
       out += galleryHtml;
+      hasMedia = true;
     } else {
-      out += '<h2 style="font-family: var(--display); color: var(--paper); font-size: 1.3rem;">' + escapeHtml(p.title) + '</h2>';
+      out += '<div class="rr-textcard"><h2 class="rr-title">' + escapeHtml(p.title) + '</h2></div>';
     }
   }
-  out += '<a href="profile.html?username=' + encodeURIComponent(p.author_username) + '" style="color: var(--brass); font-size: 0.85rem;">by ' + escapeHtml(p.author_username) + '</a>';
-  out += '<p style="color: var(--paper-dim); margin-top: 10px; white-space: pre-wrap;">' + escapeHtml(p.content) + '</p>';
-  out += '<div style="margin-top: 12px;">';
-  out += '<button class="likeBtn" data-post-id="' + p.id + '" style="background: none; border: 1px solid var(--brass); color: var(--brass); padding: 4px 10px; border-radius: 4px; cursor: pointer; margin-right: 8px;">&#9825; <span class="likeCount">0</span></button>';
-  out += '<button class="saveBtn" data-post-id="' + p.id + '" style="background: none; border: 1px solid var(--brass); color: var(--brass); padding: 4px 10px; border-radius: 4px; cursor: pointer; margin-right: 8px;">Save</button>';
+  out += '<div class="rr-body">';
+  if (hasMedia) {
+    out += '<span class="rr-by">by <a href="profile.html?username=' + encodeURIComponent(p.author_username) + '" style="color: inherit;">' + escapeHtml(p.author_username) + '</a></span>';
+  } else {
+    out += '<a href="profile.html?username=' + encodeURIComponent(p.author_username) + '" class="rr-by">by ' + escapeHtml(p.author_username) + '</a>';
+  }
+  out += '<p class="rr-content">' + escapeHtml(p.content) + '</p>';
+  out += '<div class="rr-actions">';
+  out += '<button class="likeBtn" data-post-id="' + p.id + '" style="background: none; border: 1px solid var(--brass); color: var(--brass); padding: 4px 10px; border-radius: 4px; cursor: pointer;">&#9825; <span class="likeCount">0</span></button>';
+  out += '<button class="saveBtn" data-post-id="' + p.id + '" style="background: none; border: 1px solid var(--brass); color: var(--brass); padding: 4px 10px; border-radius: 4px; cursor: pointer;">Save</button>';
   out += '<button class="toggleCommentsBtn" data-post-id="' + p.id + '" style="background: none; border: 1px solid var(--ink-line); color: var(--paper-dim); padding: 4px 10px; border-radius: 4px; cursor: pointer;">Comments</button>';
   out += '</div>';
   out += '<div class="commentsSection" data-post-id="' + p.id + '" style="display: none; margin-top: 12px;">';
   out += '<div class="commentsList" data-post-id="' + p.id + '"></div>';
   out += '<input type="text" class="commentInput" data-post-id="' + p.id + '" placeholder="Write a comment..." style="width: 100%; padding: 8px; margin-top: 8px; background: var(--ink-raised); border: 1px solid var(--ink-line); color: var(--paper); border-radius: 4px; box-sizing: border-box;">';
+  out += '</div>';
   out += '</div>';
   out += '</article>';
   return out;
@@ -278,7 +335,7 @@
 
   async function loadPosts() {
     var list = document.getElementById('postsList');
-    var result = await sb.from('posts').select('*').order('created_at', { ascending: window.currentAscending });
+    var result = await sb.from('posts').select('*').or('post_type.eq.verse,post_type.is.null').order('created_at', { ascending: window.currentAscending });
     var posts = result.data;
     var error = result.error;
 
