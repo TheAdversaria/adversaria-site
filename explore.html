@@ -11,109 +11,103 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="supabase-client.js"></script>
 <style>
-  /* ---- Explore-page-only styles. Desktop keeps the plain site look;
-     everything below the 640px breakpoint switches to the richer
-     mobile layout. Nothing here touches other pages. ---- */
+  /* ---- Explore now uses this richer layout at every width.
+     See point about matching mobile's Explore experience. ---- */
 
-  .explore-desktop { display: block; }
-  .explore-mobile { display: none; }
+  .explore-desktop { display: none; }
+  .explore-mobile { display: block; font-family: 'Inter', sans-serif; max-width: 720px; margin: 0 auto; }
 
-  @media (max-width: 640px) {
-    .explore-desktop { display: none; }
-    .explore-mobile { display: block; font-family: 'Inter', sans-serif; }
-
-    .ex-search {
-      margin: 4px 20px 14px;
-      background: var(--ink-raised);
-      border: 1px solid var(--ink-line);
-      border-radius: 14px;
-      padding: 10px 14px;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-    .ex-search svg { width: 15px; height: 15px; color: var(--dust); flex: none; }
-    .ex-search input {
-      flex: 1; background: none; border: none; outline: none;
-      color: var(--paper); font-family: 'Inter', sans-serif; font-size: 13px;
-    }
-    .ex-search input::placeholder { color: var(--dust); }
-
-    .ex-chip-row { display: flex; gap: 8px; padding: 0 20px 18px; overflow-x: auto; }
-    .ex-chip {
-      flex: none;
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 10.5px; letter-spacing: 0.3px;
-      padding: 7px 13px; border-radius: 20px;
-      border: 1px solid var(--ink-line); color: var(--paper-dim);
-      background: none; cursor: pointer; white-space: nowrap;
-    }
-    .ex-chip.on { background: var(--brass); border-color: var(--brass); color: var(--ink); font-weight: 600; }
-
-    .ex-label {
-      padding: 6px 20px 10px;
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 10px; letter-spacing: 1px; text-transform: uppercase;
-      color: var(--dust);
-    }
-
-    .ex-books-strip { display: flex; gap: 12px; padding: 0 20px 22px; overflow-x: auto; }
-    .ex-book { flex: none; width: 92px; }
-    .ex-book-cover {
-      width: 92px; height: 128px; border-radius: 8px; position: relative;
-      box-shadow: 0 10px 20px -6px rgba(0,0,0,0.5);
-      background: linear-gradient(160deg, var(--brass), var(--ink-raised) 85%);
-      display: flex; align-items: flex-end; padding: 8px;
-    }
-    .ex-rank {
-      position: absolute; top: -6px; left: -6px;
-      width: 21px; height: 21px; border-radius: 50%;
-      background: var(--ink); border: 1.5px solid var(--brass);
-      display: flex; align-items: center; justify-content: center;
-      font-family: 'JetBrains Mono', monospace; font-size: 9.5px; color: var(--brass); font-weight: 700;
-    }
-    .ex-book-num { font-family: var(--display); font-style: italic; color: rgba(232,223,200,0.85); font-size: 11px; }
-    .ex-book-title { font-family: var(--display); font-weight: 600; font-size: 12.5px; color: var(--paper); margin-top: 8px; line-height: 1.25; }
-    .ex-book-meta { font-size: 10.5px; color: var(--dust); margin-top: 2px; }
-
-    .ex-people { padding: 0 20px 22px; display: flex; flex-direction: column; gap: 12px; }
-    .ex-person {
-      display: flex; align-items: center; gap: 11px;
-      background: var(--ink-raised); border: 1px solid var(--ink-line);
-      border-radius: 14px; padding: 11px 12px;
-    }
-    .ex-p-avatar {
-      width: 40px; height: 40px; border-radius: 50%; flex: none;
-      display: flex; align-items: center; justify-content: center;
-      font-family: var(--display); font-weight: 600; font-size: 15px; color: var(--ink);
-      background: linear-gradient(135deg, var(--brass), var(--brass-dim));
-      overflow: hidden;
-    }
-    .ex-p-avatar img { width: 100%; height: 100%; object-fit: cover; }
-    .ex-p-info { flex: 1; min-width: 0; }
-    .ex-p-name { font-size: 13.5px; font-weight: 600; color: var(--paper); }
-    .ex-p-bio { font-size: 11px; color: var(--dust); margin-top: 1px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .ex-follow-btn {
-      font-family: 'JetBrains Mono', monospace; font-size: 10.5px; font-weight: 600;
-      color: var(--brass); border: 1px solid var(--brass-dim);
-      padding: 6px 12px; border-radius: 20px; flex: none;
-      background: none; cursor: pointer;
-    }
-    .ex-follow-btn.is-following { color: var(--paper-dim); border-color: var(--ink-line); }
-
-    .ex-circles-strip { display: flex; gap: 12px; padding: 0 20px 4px; overflow-x: auto; }
-    .ex-circle {
-      flex: none; width: 156px;
-      background: var(--ink-raised); border: 1px solid var(--ink-line);
-      border-radius: 16px; overflow: hidden; opacity: 0.6;
-    }
-    .ex-circle-banner { height: 58px; background: linear-gradient(135deg, var(--brass-dim), var(--ink)); }
-    .ex-circle-body { padding: 11px; }
-    .ex-circle-name { font-family: var(--display); font-weight: 600; font-size: 13px; color: var(--paper); }
-    .ex-circle-meta { font-family: 'JetBrains Mono', monospace; font-size: 9.5px; color: var(--dust); margin-top: 4px; letter-spacing: 0.3px; }
-
-    .ex-empty { padding: 20px; color: var(--dust); font-size: 12.5px; }
+  .ex-search {
+    margin: 4px 0 14px;
+    background: var(--ink-raised);
+    border: 1px solid var(--ink-line);
+    border-radius: 14px;
+    padding: 10px 14px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
   }
+  .ex-search svg { width: 15px; height: 15px; color: var(--dust); flex: none; }
+  .ex-search input {
+    flex: 1; background: none; border: none; outline: none;
+    color: var(--paper); font-family: 'Inter', sans-serif; font-size: 13px;
+  }
+  .ex-search input::placeholder { color: var(--dust); }
+
+  .ex-chip-row { display: flex; gap: 8px; padding: 0 0 18px; overflow-x: auto; }
+  .ex-chip {
+    flex: none;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10.5px; letter-spacing: 0.3px;
+    padding: 7px 13px; border-radius: 20px;
+    border: 1px solid var(--ink-line); color: var(--paper-dim);
+    background: none; cursor: pointer; white-space: nowrap;
+  }
+  .ex-chip.on { background: var(--brass); border-color: var(--brass); color: var(--ink); font-weight: 600; }
+
+  .ex-label {
+    padding: 6px 0 10px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px; letter-spacing: 1px; text-transform: uppercase;
+    color: var(--dust);
+  }
+
+  .ex-books-strip { display: flex; gap: 12px; padding: 0 0 22px; overflow-x: auto; }
+  .ex-book { flex: none; width: 92px; }
+  .ex-book-cover {
+    width: 92px; height: 128px; border-radius: 8px; position: relative;
+    box-shadow: 0 10px 20px -6px rgba(0,0,0,0.5);
+    background: linear-gradient(160deg, var(--brass), var(--ink-raised) 85%);
+    display: flex; align-items: flex-end; padding: 8px;
+  }
+  .ex-rank {
+    position: absolute; top: -6px; left: -6px;
+    width: 21px; height: 21px; border-radius: 50%;
+    background: var(--ink); border: 1.5px solid var(--brass);
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'JetBrains Mono', monospace; font-size: 9.5px; color: var(--brass); font-weight: 700;
+  }
+  .ex-book-num { font-family: var(--display); font-style: italic; color: rgba(232,223,200,0.85); font-size: 11px; }
+  .ex-book-title { font-family: var(--display); font-weight: 600; font-size: 12.5px; color: var(--paper); margin-top: 8px; line-height: 1.25; }
+  .ex-book-meta { font-size: 10.5px; color: var(--dust); margin-top: 2px; }
+
+  .ex-people { padding: 0 0 22px; display: flex; flex-direction: column; gap: 12px; }
+  .ex-person {
+    display: flex; align-items: center; gap: 11px;
+    background: var(--ink-raised); border: 1px solid var(--ink-line);
+    border-radius: 14px; padding: 11px 12px;
+  }
+  .ex-p-avatar {
+    width: 40px; height: 40px; border-radius: 50%; flex: none;
+    display: flex; align-items: center; justify-content: center;
+    font-family: var(--display); font-weight: 600; font-size: 15px; color: var(--ink);
+    background: linear-gradient(135deg, var(--brass), var(--brass-dim));
+    overflow: hidden;
+  }
+  .ex-p-avatar img { width: 100%; height: 100%; object-fit: cover; }
+  .ex-p-info { flex: 1; min-width: 0; }
+  .ex-p-name { font-size: 13.5px; font-weight: 600; color: var(--paper); }
+  .ex-p-bio { font-size: 11px; color: var(--dust); margin-top: 1px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .ex-follow-btn {
+    font-family: 'JetBrains Mono', monospace; font-size: 10.5px; font-weight: 600;
+    color: var(--brass); border: 1px solid var(--brass-dim);
+    padding: 6px 12px; border-radius: 20px; flex: none;
+    background: none; cursor: pointer;
+  }
+  .ex-follow-btn.is-following { color: var(--paper-dim); border-color: var(--ink-line); }
+
+  .ex-circles-strip { display: flex; gap: 12px; padding: 0 0 4px; overflow-x: auto; }
+  .ex-circle {
+    flex: none; width: 156px;
+    background: var(--ink-raised); border: 1px solid var(--ink-line);
+    border-radius: 16px; overflow: hidden; opacity: 0.6;
+  }
+  .ex-circle-banner { height: 58px; background: linear-gradient(135deg, var(--brass-dim), var(--ink)); }
+  .ex-circle-body { padding: 11px; }
+  .ex-circle-name { font-family: var(--display); font-weight: 600; font-size: 13px; color: var(--paper); }
+  .ex-circle-meta { font-family: 'JetBrains Mono', monospace; font-size: 9.5px; color: var(--dust); margin-top: 4px; letter-spacing: 0.3px; }
+
+  .ex-empty { padding: 20px 0; color: var(--dust); font-size: 12.5px; }
 </style>
 </head>
 <body data-page-id="explore" data-page-title="Explore — Adversaria">
@@ -122,11 +116,7 @@
   <div class="shell">
     <a class="wordmark" href="index.html">The <span>Adversaria</span></a>
     <nav class="site-nav">
-      <a href="index.html">Archive</a>
-      <a href="feed.html">Reading Room</a>
-      <a href="moments.html">Moments</a>
       <a href="explore.html" class="is-active">Explore</a>
-      <a href="bookshelf.html">Bookshelf</a>
     </nav>
     <button class="menu-toggle-btn" id="menuToggleBtn">&#9776;</button>
     <div class="write-menu-wrap">
@@ -153,6 +143,7 @@
     <a href="bookshelf.html">Bookshelf</a>
     <a href="authors.html">Authors</a>
     <a href="write.html">Write</a>
+    <a href="profile.html">Profile</a>
     <a href="edit-profile.html">Edit Profile</a>
     <a href="account.html">Account</a>
     <a href="saved.html">Saved</a>
@@ -161,16 +152,9 @@
   </div>
 </div>
 
-<!-- ============ DESKTOP: same look as your Authors directory ============ -->
-<main class="shell explore-desktop" style="max-width: 720px; margin: 60px auto; padding: 0 20px;">
-  <h1 style="font-family: var(--display); font-style: italic; color: var(--paper); font-size: 1.8rem;">Explore</h1>
-  <p style="color: var(--paper-dim); margin-top: 10px;">On phones this becomes a richer discovery view — trending manuscripts, authors to follow, and reading circles. On desktop, here's your Authors directory:</p>
-  <input id="authorSearchDesktop" type="text" placeholder="Search authors..." style="width: 100%; padding: 10px; margin-top: 16px; background: var(--ink-raised); border: 1px solid var(--ink-line); color: var(--paper); border-radius: 4px;">
-  <div id="authorsListDesktop" style="margin-top: 30px;"></div>
-</main>
-
-<!-- ============ MOBILE: Explore experience ============ -->
-<main class="explore-mobile" style="padding-top: 8px;">
+<!-- ============ Explore, same experience at every width ============ -->
+<main class="explore-mobile" style="padding-top: 8px; margin: 60px auto 60px; padding-left: 20px; padding-right: 20px;">
+  <h1 style="font-family: var(--display); font-style: italic; color: var(--paper); font-size: 1.8rem; margin-bottom: 18px;">Explore</h1>
   <div class="ex-search">
     <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.5-4.5"/></svg>
     <input type="text" id="exSearch" placeholder="Search manuscripts, authors...">
@@ -369,44 +353,6 @@
   renderBooks();
   loadPeople();
 
-  /* ---- Desktop: identical behavior to your Authors page ---- */
-  var authorCountsDesktop = {};
-  async function loadAuthorsDesktop() {
-    var list = document.getElementById('authorsListDesktop');
-    var result = await sb.from('posts').select('author_username');
-    var posts = result.data;
-    if (!posts || posts.length === 0) {
-      list.innerHTML = '<p style="color: var(--paper-dim);">No authors yet.</p>';
-      return;
-    }
-    for (var i = 0; i < posts.length; i++) {
-      var name = posts[i].author_username;
-      authorCountsDesktop[name] = (authorCountsDesktop[name] || 0) + 1;
-    }
-    renderAuthorsDesktop();
-  }
-  function renderAuthorsDesktop() {
-    var list = document.getElementById('authorsListDesktop');
-    var names = Object.keys(authorCountsDesktop).sort();
-    var html = '';
-    names.forEach(function (n) {
-      var count = authorCountsDesktop[n];
-      var label = count === 1 ? ' entry' : ' entries';
-      html += '<a href="profile.html?username=' + encodeURIComponent(n) + '" style="display: block; padding: 16px 0; border-bottom: 1px solid var(--ink-line); text-decoration: none;">';
-      html += '<span style="font-family: var(--display); color: var(--paper); font-size: 1.2rem;">' + escapeHtml(n) + '</span>';
-      html += '<span style="color: var(--dust); font-size: 0.8rem; margin-left: 10px;">' + count + label + '</span>';
-      html += '</a>';
-    });
-    list.innerHTML = html;
-  }
-  document.getElementById('authorSearchDesktop').addEventListener('input', function () {
-    var query = this.value.toLowerCase();
-    document.querySelectorAll('#authorsListDesktop a').forEach(function (a) {
-      var name = a.textContent.toLowerCase();
-      a.style.display = name.indexOf(query) === -1 ? 'none' : 'block';
-    });
-  });
-  loadAuthorsDesktop();
 
   async function showAuthStatus() {
     var authStatus = document.getElementById('authStatus');

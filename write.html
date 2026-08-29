@@ -17,11 +17,7 @@
   <div class="shell">
     <a class="wordmark" href="index.html">The <span>Adversaria</span></a>
     <nav class="site-nav">
-      <a href="index.html">Archive</a>
-      <a href="feed.html">Reading Room</a>
-      <a href="moments.html">Moments</a>
-      <a href="explore.html">Explore</a>
-      <a href="bookshelf.html">Bookshelf</a>
+      <a href="write.html" class="is-active">Write</a>
     </nav>
     <button class="menu-toggle-btn" id="menuToggleBtn">&#9776;</button>
     <a class="icon-btn" href="messages.html" title="Messages" aria-label="Messages" id="messagesNavLink" style="display: none; margin-right: 8px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 2 11 13"/><path d="M22 2 15 22l-4-9-9-4z"/></svg><span class="icon-label">Messages</span></a>
@@ -38,6 +34,7 @@
     <a href="explore.html">Explore</a>
     <a href="bookshelf.html">Bookshelf</a>
     <a href="authors.html">Authors</a>
+    <a href="profile.html">Profile</a>
     <a href="edit-profile.html">Edit Profile</a>
     <a href="account.html">Account</a>
     <a href="saved.html">Saved</a>
@@ -58,6 +55,22 @@
   <div id="writeForm" style="margin-top: 20px; display: none;">
     <input id="titleInput" type="text" placeholder="Title" style="width: 100%; padding: 10px; margin-bottom: 10px; background: var(--ink-raised); border: 1px solid var(--ink-line); color: var(--paper); border-radius: 4px; box-sizing: border-box;">
     <textarea id="contentInput" placeholder="Write here..." rows="14" style="width: 100%; padding: 10px; margin-bottom: 14px; background: var(--ink-raised); border: 1px solid var(--ink-line); color: var(--paper); border-radius: 4px; font-family: var(--body); font-size: 1rem; resize: vertical; box-sizing: border-box;"></textarea>
+
+    <div id="marginFields" style="display: none;">
+      <label style="color: var(--paper-dim); font-size: 0.85rem;">MS number (e.g. "015" — leave blank to auto-assign)</label>
+      <input id="msNumberInput" type="text" placeholder="015" maxlength="6" style="width: 100%; padding: 10px; margin-top: 6px; margin-bottom: 14px; background: var(--ink-raised); border: 1px solid var(--ink-line); color: var(--paper); border-radius: 4px; box-sizing: border-box;">
+
+      <label style="color: var(--paper-dim); font-size: 0.85rem;">Tags (comma separated, e.g. "Gothic, Novella")</label>
+      <input id="tagsInput" type="text" placeholder="Gothic, Novella" style="width: 100%; padding: 10px; margin-top: 6px; margin-bottom: 14px; background: var(--ink-raised); border: 1px solid var(--ink-line); color: var(--paper); border-radius: 4px; box-sizing: border-box;">
+
+      <label style="color: var(--paper-dim); font-size: 0.85rem;">Status line (e.g. "Ch. 5 · updated Monday")</label>
+      <input id="statusInput" type="text" placeholder="Ch. 5 · updated Monday" style="width: 100%; padding: 10px; margin-top: 6px; margin-bottom: 14px; background: var(--ink-raised); border: 1px solid var(--ink-line); color: var(--paper); border-radius: 4px; box-sizing: border-box;">
+
+      <label style="display: flex; align-items: center; gap: 8px; color: var(--paper-dim); font-size: 0.85rem; margin-bottom: 14px; cursor: pointer;">
+        <input id="completeInput" type="checkbox" style="accent-color: var(--brass); width: 15px; height: 15px;">
+        Mark as complete (shows the wax seal, like your finished manuscripts)
+      </label>
+    </div>
 
     <label style="color: var(--paper-dim); font-size: 0.85rem;">Images (pick as many as you like)</label>
     <input id="imageInput" type="file" accept="image/*" multiple style="width: 100%; margin-top: 6px; margin-bottom: 14px; color: var(--paper-dim);">
@@ -113,6 +126,9 @@
   };
   document.getElementById('writeHeading').textContent = WRITE_COPY[postType].h;
   document.getElementById('writeSub').textContent = WRITE_COPY[postType].s;
+  if (postType === 'margin') {
+    document.getElementById('marginFields').style.display = 'block';
+  }
 
   async function checkAuth() {
     var notSignedIn = document.getElementById('notSignedIn');
@@ -217,6 +233,19 @@
       return;
     }
 
+    var msNumberValue = '';
+    if (postType === 'margin') {
+      msNumberValue = document.getElementById('msNumberInput').value.trim();
+      if (msNumberValue) {
+        var dupCheck = await sb.from('posts').select('id, title, author_username').eq('post_type', 'margin').eq('ms_number', msNumberValue);
+        if (dupCheck.data && dupCheck.data.length > 0) {
+          var taken = dupCheck.data[0];
+          statusMsg.textContent = 'MS. ' + msNumberValue + ' is already taken by "' + taken.title + '" (' + taken.author_username + '). Pick a different number.';
+          return;
+        }
+      }
+    }
+
     statusMsg.textContent = 'Publishing...';
 
     var imageUrls = [];
@@ -244,6 +273,12 @@
       user_id: currentUser.id,
       post_type: postType
     };
+    if (postType === 'margin') {
+      var tagsRaw = document.getElementById('tagsInput').value.trim();
+      insertData.tags = tagsRaw ? tagsRaw.split(',').map(function (t) { return t.trim(); }).filter(Boolean).join(',') : '';
+      insertData.entry_status = document.getElementById('statusInput').value.trim();
+      insertData.is_complete = document.getElementById('completeInput').checked;
+    }
     if (imageUrls.length > 0) {
       insertData.image_urls = imageUrls;
       insertData.image_url = imageUrls[0];
@@ -261,6 +296,11 @@
       document.getElementById('contentInput').value = '';
       document.getElementById('imageInput').value = '';
       document.getElementById('videoUrlInput').value = '';
+      if (postType === 'margin') {
+        document.getElementById('tagsInput').value = '';
+        document.getElementById('statusInput').value = '';
+        document.getElementById('completeInput').checked = false;
+      }
       selectedFiles = [];
       renderImagePreviews();
     }

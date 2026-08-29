@@ -11,67 +11,67 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="supabase-client.js"></script>
 <style>
-  .bs-desktop { display: block; }
-  .bs-mobile { display: none; }
+  .bs-desktop { display: none; }
 
-  @media (max-width: 640px) {
-    .bs-desktop { display: none; }
-
-    .bs-mobile {
-      --bg-app: var(--ink);
-      --surface: var(--ink-raised);
-      --cream: var(--paper);
-      --muted: var(--dust);
-      --amber: var(--brass);
-      --amber-dim: var(--brass-dim);
-      --divider: var(--ink-line);
-      display: block;
-      font-family: 'Inter', sans-serif;
-      background: var(--bg-app);
-      margin: 0;
-      min-height: 100vh;
-      padding: 14px 0 0;
-    }
-
-    .bs-header { padding: 4px 22px 14px; display: flex; align-items: center; justify-content: space-between; }
-    .bs-title { font-family: 'Fraunces', serif; font-style: italic; font-weight: 500; font-size: 23px; color: var(--cream); }
-    .bs-newshelf {
-      font-family: 'JetBrains Mono', monospace; font-size: 10.5px; font-weight: 600; letter-spacing: 0.3px;
-      background: linear-gradient(150deg, #F0AE6E, #C97B3E); color: #1C1410;
-      padding: 8px 14px; border-radius: 20px; border: none; cursor: pointer;
-    }
-
-    .bs-toggle-row { display: flex; gap: 18px; padding: 0 22px 12px; border-bottom: 1px solid var(--divider); overflow-x: auto; }
-    .bs-toggle { font-size: 12.5px; font-weight: 600; color: var(--muted); padding-bottom: 10px; white-space: nowrap; position: relative; background: none; border: none; cursor: pointer; font-family: 'Inter', sans-serif; }
-    .bs-toggle.on { color: var(--cream); }
-    .bs-toggle.on::after { content: ''; position: absolute; left: 0; right: 0; bottom: -1px; height: 2px; background: var(--amber); border-radius: 2px; }
-
-    .bs-panel { padding: 16px 0 90px; }
-
-    .bs-label { padding: 6px 22px 10px; font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: 1px; text-transform: uppercase; color: var(--muted); }
-
-    .bs-shelf-card { margin: 0 22px 16px; border: 1px solid var(--divider); border-radius: 18px; overflow: hidden; background: var(--surface); }
-    .bs-shelf-top { padding: 16px 16px 14px; }
-    .bs-shelf-owner { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; }
-    .bs-owner-avatar { width: 22px; height: 22px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-family: 'Fraunces', serif; font-weight: 600; font-size: 10px; color: #1C1814; background: linear-gradient(135deg, var(--amber), #C97B3E); }
-    .bs-owner-name { font-size: 12px; color: var(--muted); font-weight: 500; }
-    .bs-shelf-title { font-family: 'Fraunces', serif; font-weight: 600; font-size: 18px; color: var(--cream); margin-bottom: 10px; }
-    .bs-shelf-meta-row { display: flex; align-items: center; justify-content: space-between; }
-    .bs-shelf-count { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--muted); }
-    .bs-shelf-count svg { width: 13px; height: 13px; }
-
-    .bs-covers { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5px; }
-    .bs-cover-cell { aspect-ratio: 3/4; position: relative; background: linear-gradient(160deg, var(--amber), #5C3A22); }
-    .bs-cover-cell.empty { background: var(--bg-app); display: flex; align-items: center; justify-content: center; }
-    .bs-cover-cell.empty svg { width: 18px; height: 18px; color: var(--divider); }
-    .bs-cover-cell img { width: 100%; height: 100%; object-fit: cover; display: block; }
-    .bs-cover-cell span { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-family: 'Fraunces', serif; font-style: italic; color: rgba(243,230,211,0.9); font-size: 12px; text-align: center; padding: 6px; }
-
-    .bs-empty { padding: 14px 22px; color: var(--muted); font-size: 12.5px; }
-
-    .bs-note-item { margin: 0 22px 10px; padding: 12px 14px; border: 1px solid var(--divider); border-radius: 12px; background: var(--surface); font-size: 12.5px; color: var(--cream); }
-    .bs-note-tag { display: block; font-family: 'JetBrains Mono', monospace; font-size: 9.5px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; }
+  .bs-mobile {
+    --bg-app: var(--ink);
+    --surface: var(--ink-raised);
+    --cream: var(--paper);
+    --muted: var(--dust);
+    --amber: var(--brass);
+    --amber-dim: var(--brass-dim);
+    --divider: var(--ink-line);
+    display: block;
+    font-family: 'Inter', sans-serif;
+    background: var(--bg-app);
+    max-width: 640px;
+    margin: 0 auto;
+    min-height: 100vh;
+    padding: 34px 0 0;
   }
+
+  .bs-header { padding: 4px 22px 14px; display: flex; align-items: center; justify-content: space-between; }
+  .bs-title { font-family: 'Fraunces', serif; font-style: italic; font-weight: 500; font-size: 23px; color: var(--cream); }
+  .bs-newshelf {
+    font-family: 'JetBrains Mono', monospace; font-size: 10.5px; font-weight: 600; letter-spacing: 0.3px;
+    background: linear-gradient(150deg, #F0AE6E, #C97B3E); color: #1C1410;
+    padding: 8px 14px; border-radius: 20px; border: none; cursor: pointer;
+  }
+
+  .bs-toggle-row { display: flex; gap: 18px; padding: 0 22px 12px; border-bottom: 1px solid var(--divider); overflow-x: auto; }
+  .bs-toggle { font-size: 12.5px; font-weight: 600; color: var(--muted); padding-bottom: 10px; white-space: nowrap; position: relative; background: none; border: none; cursor: pointer; font-family: 'Inter', sans-serif; }
+  .bs-toggle.on { color: var(--cream); }
+  .bs-toggle.on::after { content: ''; position: absolute; left: 0; right: 0; bottom: -1px; height: 2px; background: var(--amber); border-radius: 2px; }
+
+  .bs-panel { padding: 16px 0 90px; }
+
+  .bs-label { padding: 6px 22px 10px; font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: 1px; text-transform: uppercase; color: var(--muted); }
+
+  .bs-shelf-card { margin: 0 22px 16px; border: 1px solid var(--divider); border-radius: 18px; overflow: hidden; background: var(--surface); }
+  .bs-shelf-top { padding: 16px 16px 14px; }
+  .bs-shelf-owner { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; }
+  .bs-owner-avatar { width: 22px; height: 22px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-family: 'Fraunces', serif; font-weight: 600; font-size: 10px; color: #1C1814; background: linear-gradient(135deg, var(--amber), #C97B3E); }
+  .bs-owner-name { font-size: 12px; color: var(--muted); font-weight: 500; }
+  .bs-shelf-title { font-family: 'Fraunces', serif; font-weight: 600; font-size: 18px; color: var(--cream); margin-bottom: 10px; }
+  .bs-shelf-meta-row { display: flex; align-items: center; justify-content: space-between; }
+  .bs-shelf-count { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--muted); }
+  .bs-shelf-count svg { width: 13px; height: 13px; }
+
+  .bs-covers { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5px; }
+  .bs-cover-cell { aspect-ratio: 3/4; position: relative; background: linear-gradient(160deg, var(--amber), #5C3A22); }
+  .bs-cover-cell.empty { background: var(--bg-app); display: flex; align-items: center; justify-content: center; }
+  .bs-cover-cell.empty svg { width: 18px; height: 18px; color: var(--divider); }
+  .bs-cover-cell img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .bs-cover-cell span { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-family: 'Fraunces', serif; font-style: italic; color: rgba(243,230,211,0.9); font-size: 12px; text-align: center; padding: 6px; }
+
+  .bs-empty { padding: 14px 22px; color: var(--muted); font-size: 12.5px; }
+
+  .bs-note-item { margin: 0 22px 10px; padding: 12px 14px; border: 1px solid var(--divider); border-radius: 12px; background: var(--surface); font-size: 12.5px; color: var(--cream); }
+  .bs-note-tag { display: block; font-family: 'JetBrains Mono', monospace; font-size: 9.5px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; }
+
+  .bs-title-item { margin: 0 22px 8px; padding: 12px 14px; border: 1px solid var(--divider); border-radius: 12px; background: var(--surface); display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+  .bs-title-item .t { font-family: 'Fraunces', serif; font-weight: 600; font-size: 14px; color: var(--cream); }
+  .bs-title-item .a { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--muted); margin-top: 2px; }
 </style>
 </head>
 <body data-page-id="bookshelf" data-page-title="Bookshelf — Adversaria">
@@ -80,10 +80,6 @@
   <div class="shell">
     <a class="wordmark" href="index.html">The <span>Adversaria</span></a>
     <nav class="site-nav">
-      <a href="index.html">Archive</a>
-      <a href="feed.html">Reading Room</a>
-      <a href="moments.html">Moments</a>
-      <a href="explore.html">Explore</a>
       <a href="bookshelf.html" class="is-active">Bookshelf</a>
     </nav>
     <button class="menu-toggle-btn" id="menuToggleBtn">&#9776;</button>
@@ -111,6 +107,7 @@
     <a href="bookshelf.html">Bookshelf</a>
     <a href="authors.html">Authors</a>
     <a href="write.html">Write</a>
+    <a href="profile.html">Profile</a>
     <a href="edit-profile.html">Edit Profile</a>
     <a href="account.html">Account</a>
     <a href="saved.html">Saved</a>
@@ -119,14 +116,7 @@
   </div>
 </div>
 
-<!-- DESKTOP -->
-<main class="shell bs-desktop" style="max-width: 720px; margin: 60px auto; padding: 0 20px;">
-  <h1 style="font-family: var(--display); font-style: italic; color: var(--paper); font-size: 1.8rem;">Your Bookshelf</h1>
-  <p style="color: var(--paper-dim); margin-top: 10px;">On phones this becomes a shelf view. On desktop, here's everything you've saved:</p>
-  <div id="savedListDesktop" style="margin-top: 30px;"></div>
-</main>
-
-<!-- MOBILE -->
+<!-- MOBILE (now shown at all widths — see point 3) -->
 <main class="bs-mobile">
   <div class="bs-header">
     <div class="bs-title">Your bookshelf</div>
@@ -308,12 +298,9 @@
     var userResult = await sb.auth.getUser();
     var user = userResult.data.user;
 
-    var savedDesktop = document.getElementById('savedListDesktop');
-
     if (!user) {
       document.getElementById('bsShelvesSaved').innerHTML = '<div class="bs-empty">Sign in to see your saved entries.</div>';
       document.getElementById('bsSavedList').innerHTML = '<div class="bs-empty">Sign in to see your saved entries.</div>';
-      savedDesktop.innerHTML = '<p style="color: var(--paper-dim);">Sign in to see your saved entries.</p>';
       return;
     }
 
@@ -322,7 +309,6 @@
     if (saves.length === 0) {
       loadSavedShelfCard([]);
       loadSavedFullList([]);
-      savedDesktop.innerHTML = '<p style="color: var(--paper-dim);">Nothing saved yet.</p>';
       return;
     }
 
@@ -332,16 +318,6 @@
 
     loadSavedShelfCard(posts);
     loadSavedFullList(posts);
-
-    var deskHtml = '';
-    posts.forEach(function (p) {
-      deskHtml += '<article style="border-bottom: 1px solid var(--ink-line); padding: 20px 0;">';
-      deskHtml += '<h2 style="font-family: var(--display); color: var(--paper); font-size: 1.3rem;">' + escapeHtml(p.title) + '</h2>';
-      deskHtml += '<span style="color: var(--brass); font-size: 0.85rem;">by ' + escapeHtml(p.author_username) + '</span>';
-      deskHtml += '<p style="color: var(--paper-dim); margin-top: 10px; white-space: pre-wrap;">' + escapeHtml(p.content) + '</p>';
-      deskHtml += '</article>';
-    });
-    savedDesktop.innerHTML = deskHtml;
   }
 
   loadCurrentlyReading();

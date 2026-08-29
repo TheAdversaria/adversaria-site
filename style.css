@@ -1442,15 +1442,16 @@ body.candle-on {
   .mobile-fab { display: none; }
 }
 /* -------------------------------------------------
-   Desktop header additions: Write pill + hero streak
+   Desktop header additions: Write pill + dropdown
    (mobile is untouched — these only affect the
-   desktop header/hero already hidden below 640px)
+   desktop header, hidden below 640px)
 ------------------------------------------------- */
 .write-pill {
   display: inline-flex;
   align-items: center;
   background: var(--brass);
   color: var(--ink);
+  border: none;
   border-radius: 18px;
   padding: 7px 15px;
   font-family: var(--body);
@@ -1458,63 +1459,11 @@ body.candle-on {
   font-weight: 600;
   letter-spacing: 0.02em;
   margin-right: 4px;
+  cursor: pointer;
   transition: background .18s ease;
 }
 .write-pill:hover { background: var(--brass-dim); }
 
-.streak-strip {
-  display: inline-flex;
-  align-items: center;
-  gap: 10px;
-  margin-top: clamp(20px, 4vw, 28px);
-  border: 1px dashed var(--brass-dim);
-  border-radius: 20px;
-  padding: 9px 18px;
-  background: rgba(201,138,62,0.04);
-}
-.streak-strip[hidden] { display: none; }
-.streak-n {
-  font-family: var(--display);
-  font-style: italic;
-  color: var(--brass);
-  font-size: 1.15rem;
-}
-.streak-s {
-  color: var(--paper-dim);
-  font-size: 0.82rem;
-}
-
-/* -------------------------------------------------
-   Write menu — dropdown for the "+ Write" pill
-   (desktop only, mobile FAB is untouched)
-------------------------------------------------- */
-.write-menu-wrap { position: relative; display: inline-block; }
-.write-menu {
-  position: absolute;
-  top: calc(100% + 8px);
-  right: 0;
-  min-width: 190px;
-  background: var(--ink-raised);
-  border: 1px solid var(--ink-line);
-  border-radius: 8px;
-  padding: 6px;
-  z-index: 300;
-  box-shadow: 0 14px 34px rgba(0,0,0,0.45);
-}
-.write-menu[hidden] { display: none; }
-.write-menu a {
-  display: block;
-  padding: 9px 12px;
-  border-radius: 5px;
-  font-size: 0.84rem;
-  color: var(--paper-dim);
-}
-.write-menu a:hover { background: rgba(201,138,62,0.08); color: var(--brass); }
-.write-menu a small { display: block; color: var(--dust); font-size: 0.68rem; margin-top: 1px; }
-
-/* -------------------------------------------------
-   Write menu dropdown (desktop "+ Write" pill)
-------------------------------------------------- */
 .write-menu-wrap { position: relative; display: inline-block; }
 .write-menu {
   position: absolute;
@@ -1560,3 +1509,28 @@ body.candle-on {
 .rr-grid .rr-content { color: var(--paper-dim); margin-top: 8px; font-size: 0.86rem; line-height: 1.55; white-space: pre-wrap; }
 .rr-grid .rr-actions { margin-top: 12px; display: flex; gap: 8px; flex-wrap: wrap; }
 @media (max-width: 1000px) { .rr-grid { columns: 2 240px; } }
+
+/* -------------------------------------------------
+   Header nav: single active-page label instead of a
+   full list — hamburger menu holds everything else
+------------------------------------------------- */
+.site-nav a.is-active { color: var(--brass); border-color: var(--brass-dim); }
+
+/* Delete button on user's own posts (Reading Room / Moments / Archive margins) */
+.rr-delete-btn { background: none; border: 1px solid var(--wax); color: var(--wax); padding: 4px 10px; border-radius: 4px; cursor: pointer; font-size: 0.78rem; }
+.rr-delete-btn:hover { background: rgba(139,58,58,0.12); }
+
+/* Reading streak pill, shown in the Archive hero */
+.streak-strip {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: clamp(20px, 4vw, 28px);
+  border: 1px dashed var(--brass-dim);
+  border-radius: 20px;
+  padding: 9px 18px;
+  background: rgba(201,138,62,0.04);
+}
+.streak-strip[hidden] { display: none; }
+.streak-n { font-family: var(--display); font-style: italic; color: var(--brass); font-size: 1.15rem; }
+.streak-s { color: var(--paper-dim); font-size: 0.82rem; }

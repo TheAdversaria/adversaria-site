@@ -15,6 +15,58 @@
   .idx-desktop { display: block; }
   .idx-mobile { display: none; }
 
+  .ix-circle-wrap { max-width: 560px; }
+  .ix-header { padding: 4px 0 12px; display: flex; align-items: flex-start; justify-content: space-between; }
+  .ix-sub { font-size: 11.5px; color: var(--dust); margin-top: 3px; font-weight: 500; }
+  .ix-header-icons { display: flex; gap: 14px; padding-top: 6px; }
+  .ix-icon-btn { position: relative; width: 20px; height: 20px; color: var(--paper); display: inline-flex; align-items: center; justify-content: center; }
+  .ix-icon-btn svg { width: 100%; height: 100%; display: block; }
+  .ix-badge { position: absolute; top: -4px; right: -5px; width: 13px; height: 13px; border-radius: 50%; background: var(--brass); color: var(--ink); font-size: 8px; font-weight: 700; display: flex; align-items: center; justify-content: center; font-family: 'JetBrains Mono', monospace; }
+
+  .ix-stories { display: flex; gap: 14px; padding: 12px 0 16px; overflow-x: auto; border-bottom: 1px solid var(--ink-line); text-decoration: none; }
+  .ix-story { flex: none; width: 58px; text-align: center; text-decoration: none; }
+  .ix-story-ring { width: 56px; height: 56px; border-radius: 50%; padding: 2.5px; background: conic-gradient(var(--brass), #8FAE93, var(--brass)); display: flex; align-items: center; justify-content: center; margin: 0 auto; }
+  .ix-story-cover { width: 100%; height: 100%; border-radius: 50%; border: 2.5px solid var(--ink); display: flex; align-items: center; justify-content: center; font-family: var(--display); font-weight: 600; font-size: 14px; color: var(--ink); background: linear-gradient(160deg, var(--brass), var(--brass-dim)); }
+  .ix-story-name { font-size: 9.5px; color: var(--dust); margin-top: 6px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .ix-story.you .ix-story-ring { background: var(--ink-line); }
+  .ix-story.you .ix-story-cover { background: var(--ink-raised); color: var(--brass); font-size: 18px; }
+
+  .ix-filter-row { display: flex; gap: 8px; padding: 14px 0 4px; }
+  .ix-filter-pill { font-family: 'JetBrains Mono', monospace; font-size: 10.5px; padding: 6px 13px; border-radius: 20px; border: 1px solid var(--ink-line); color: var(--dust); background: none; cursor: pointer; }
+  .ix-filter-pill.on { background: var(--brass); color: var(--ink); border-color: var(--brass); font-weight: 600; }
+
+  .ix-label { padding: 16px 0 8px; font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: 1px; color: var(--dust); text-transform: uppercase; }
+
+  .ix-ms-card { margin: 0 0 14px; background: var(--ink-raised); border: 1px solid var(--ink-line); border-radius: 18px; padding: 14px; display: flex; gap: 12px; text-decoration: none; }
+  .ix-ms-cover { width: 50px; height: 72px; border-radius: 6px; flex: none; box-shadow: 0 6px 14px -4px rgba(0,0,0,0.5); background: linear-gradient(160deg, var(--brass), var(--ink)); }
+  .ix-ms-info { flex: 1; min-width: 0; }
+  .ix-ms-title { font-family: var(--display); font-weight: 600; font-size: 14.5px; color: var(--paper); line-height: 1.25; }
+  .ix-ms-author { font-size: 11px; color: var(--dust); margin-top: 2px; }
+  .ix-ms-note { font-size: 11px; color: var(--paper-dim); margin-top: 8px; line-height: 1.5; }
+  .ix-progress-track { height: 3px; border-radius: 3px; background: var(--ink-line); margin-top: 9px; overflow: hidden; }
+  .ix-progress-fill { height: 100%; border-radius: 3px; background: var(--brass); }
+  .ix-ms-pill { display: inline-flex; align-items: center; gap: 5px; margin-top: 9px; font-family: 'JetBrains Mono', monospace; font-size: 9.5px; color: var(--brass); border: 1px solid var(--brass-dim); padding: 3px 8px; border-radius: 20px; }
+  .ix-live-dot { width: 5px; height: 5px; border-radius: 50%; background: #8FAE93; }
+
+  .ix-post { padding: 14px 0 16px; border-bottom: 1px solid var(--ink-line); }
+  .ix-post-head { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+  .ix-post-avatar { width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-family: var(--display); font-weight: 600; font-size: 12px; color: var(--ink); background: linear-gradient(135deg, var(--brass), var(--brass-dim)); flex: none; }
+  .ix-post-name { font-size: 13px; font-weight: 600; color: var(--paper); }
+  .ix-post-time { font-family: 'JetBrains Mono', monospace; font-size: 9.5px; color: var(--dust); margin-top: 1px; }
+  .ix-post-caption { font-size: 13px; line-height: 1.55; color: var(--paper); cursor: pointer; }
+  .ix-post-actions { display: flex; align-items: center; gap: 16px; margin-top: 11px; }
+  .ix-action { display: flex; align-items: center; gap: 5px; font-family: 'JetBrains Mono', monospace; font-size: 10.5px; color: var(--dust); background: none; border: none; cursor: pointer; padding: 0; }
+  .ix-action svg { width: 14px; height: 14px; }
+  .ix-action.lit { color: var(--brass); }
+
+  .ix-empty { padding: 16px 0; color: var(--dust); font-size: 12.5px; }
+
+  /* entry progress bar — added to existing static catalog cards */
+  .entry-progress { margin-top: 12px; }
+  .entry-progress-track { height: 3px; border-radius: 3px; background: var(--ink-line); overflow: hidden; }
+  .entry-progress-fill { height: 100%; border-radius: 3px; background: var(--brass); }
+  .entry-progress-label { font-size: 0.68rem; color: var(--dust); margin-top: 6px; letter-spacing: 0.03em; }
+
   @media (max-width: 640px) {
     .idx-desktop { display: none; }
     .site-header .header-tools { display: none; }
@@ -31,51 +83,14 @@
       background: var(--ink);
       min-height: 100vh;
     }
-
-    .ix-header { padding: 4px 20px 12px; display: flex; align-items: flex-start; justify-content: space-between; }
-    .ix-sub { font-size: 11.5px; color: var(--dust); margin-top: 3px; font-weight: 500; }
-    .ix-header-icons { display: flex; gap: 14px; padding-top: 6px; }
-    .ix-icon-btn { position: relative; width: 20px; height: 20px; color: var(--paper); display: inline-flex; align-items: center; justify-content: center; }
-    .ix-icon-btn svg { width: 100%; height: 100%; display: block; }
-    .ix-badge { position: absolute; top: -4px; right: -5px; width: 13px; height: 13px; border-radius: 50%; background: var(--brass); color: var(--ink); font-size: 8px; font-weight: 700; display: flex; align-items: center; justify-content: center; font-family: 'JetBrains Mono', monospace; }
-
-    .ix-stories { display: flex; gap: 14px; padding: 12px 20px 16px; overflow-x: auto; border-bottom: 1px solid var(--ink-line); text-decoration: none; }
-    .ix-story { flex: none; width: 58px; text-align: center; text-decoration: none; }
-    .ix-story-ring { width: 56px; height: 56px; border-radius: 50%; padding: 2.5px; background: conic-gradient(var(--brass), var(--sage), var(--brass)); display: flex; align-items: center; justify-content: center; margin: 0 auto; }
-    .ix-story-cover { width: 100%; height: 100%; border-radius: 50%; border: 2.5px solid var(--ink); display: flex; align-items: center; justify-content: center; font-family: var(--display); font-weight: 600; font-size: 14px; color: var(--ink); background: linear-gradient(160deg, var(--brass), var(--brass-dim)); }
-    .ix-story-name { font-size: 9.5px; color: var(--dust); margin-top: 6px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .ix-story.you .ix-story-ring { background: var(--ink-line); }
-    .ix-story.you .ix-story-cover { background: var(--ink-raised); color: var(--brass); font-size: 18px; }
-
-    .ix-filter-row { display: flex; gap: 8px; padding: 14px 20px 4px; }
-    .ix-filter-pill { font-family: 'JetBrains Mono', monospace; font-size: 10.5px; padding: 6px 13px; border-radius: 20px; border: 1px solid var(--ink-line); color: var(--dust); background: none; cursor: pointer; }
-    .ix-filter-pill.on { background: var(--brass); color: var(--ink); border-color: var(--brass); font-weight: 600; }
-
-    .ix-label { padding: 16px 20px 8px; font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: 1px; color: var(--dust); text-transform: uppercase; }
-
-    .ix-ms-card { margin: 0 20px 14px; background: var(--ink-raised); border: 1px solid var(--ink-line); border-radius: 18px; padding: 14px; display: flex; gap: 12px; text-decoration: none; }
-    .ix-ms-cover { width: 50px; height: 72px; border-radius: 6px; flex: none; box-shadow: 0 6px 14px -4px rgba(0,0,0,0.5); background: linear-gradient(160deg, var(--brass), var(--ink)); }
-    .ix-ms-info { flex: 1; min-width: 0; }
-    .ix-ms-title { font-family: var(--display); font-weight: 600; font-size: 14.5px; color: var(--paper); line-height: 1.25; }
-    .ix-ms-author { font-size: 11px; color: var(--dust); margin-top: 2px; }
-    .ix-ms-note { font-size: 11px; color: var(--paper-dim); margin-top: 8px; line-height: 1.5; }
-    .ix-progress-track { height: 3px; border-radius: 3px; background: var(--ink-line); margin-top: 9px; overflow: hidden; }
-    .ix-progress-fill { height: 100%; border-radius: 3px; background: var(--brass); }
-    .ix-ms-pill { display: inline-flex; align-items: center; gap: 5px; margin-top: 9px; font-family: 'JetBrains Mono', monospace; font-size: 9.5px; color: var(--brass); border: 1px solid var(--brass-dim); padding: 3px 8px; border-radius: 20px; }
-    .ix-live-dot { width: 5px; height: 5px; border-radius: 50%; background: var(--sage); }
-
-    .ix-post { padding: 14px 20px 16px; border-bottom: 1px solid var(--ink-line); }
-    .ix-post-head { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
-    .ix-post-avatar { width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-family: var(--display); font-weight: 600; font-size: 12px; color: var(--ink); background: linear-gradient(135deg, var(--brass), var(--brass-dim)); flex: none; }
-    .ix-post-name { font-size: 13px; font-weight: 600; color: var(--paper); }
-    .ix-post-time { font-family: 'JetBrains Mono', monospace; font-size: 9.5px; color: var(--dust); margin-top: 1px; }
-    .ix-post-caption { font-size: 13px; line-height: 1.55; color: var(--paper); cursor: pointer; }
-    .ix-post-actions { display: flex; align-items: center; gap: 16px; margin-top: 11px; }
-    .ix-action { display: flex; align-items: center; gap: 5px; font-family: 'JetBrains Mono', monospace; font-size: 10.5px; color: var(--dust); background: none; border: none; cursor: pointer; padding: 0; }
-    .ix-action svg { width: 14px; height: 14px; }
-    .ix-action.lit { color: var(--brass); }
-
-    .ix-empty { padding: 16px 20px; color: var(--dust); font-size: 12.5px; }
+    .idx-mobile .ix-header,
+    .idx-mobile .ix-stories,
+    .idx-mobile .ix-filter-row,
+    .idx-mobile .ix-label,
+    .idx-mobile .ix-ms-card,
+    .idx-mobile .ix-post,
+    .idx-mobile .ix-empty { padding-left: 20px; padding-right: 20px; }
+    .idx-mobile .ix-ms-card { margin-left: 20px; margin-right: 20px; }
   }
 </style>
 </head>
@@ -88,22 +103,18 @@
     <a class="wordmark" href="index.html">The <span>Adversaria</span></a>
     <nav class="site-nav">
       <a href="index.html" class="is-active">Archive</a>
-      <a href="feed.html">Reading Room</a>
-      <a href="moments.html">Moments</a>
-      <a href="explore.html">Explore</a>
-      <a href="bookshelf.html">Bookshelf</a>
     </nav>
     <button class="menu-toggle-btn" id="menuToggleBtn">&#9776;</button>
     <div class="header-tools">
       <div class="write-menu-wrap">
-      <button type="button" class="write-pill" id="writeMenuBtn">+ Write</button>
-      <div class="write-menu" id="writeMenu" hidden>
-        <a href="write.html?type=margin">Add a margin<small>appears on the Archive</small></a>
-        <a href="write.html?type=verse">Add a verse<small>appears in the Reading Room</small></a>
-        <a href="write.html?type=photo">Post a photo<small>appears in Moments</small></a>
-        <a href="write.html?type=reel">Post a reel<small>appears in Moments</small></a>
+        <button type="button" class="write-pill" id="writeMenuBtn">+ Write</button>
+        <div class="write-menu" id="writeMenu" hidden>
+          <a href="write.html?type=margin">Add a margin<small>appears on the Archive</small></a>
+          <a href="write.html?type=verse">Add a verse<small>appears in the Reading Room</small></a>
+          <a href="write.html?type=photo">Post a photo<small>appears in Moments</small></a>
+          <a href="write.html?type=reel">Post a reel<small>appears in Moments</small></a>
+        </div>
       </div>
-    </div>
       <a class="icon-btn" href="messages.html" title="Messages" aria-label="Messages" id="messagesNavLink" style="display: none;">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 2 11 13"/><path d="M22 2 15 22l-4-9-9-4z"/></svg>
         <span class="icon-label">Messages</span>
@@ -130,6 +141,7 @@
     <a href="bookshelf.html">Bookshelf</a>
     <a href="authors.html">Authors</a>
     <a href="write.html">Write</a>
+    <a href="profile.html">Profile</a>
     <a href="edit-profile.html">Edit Profile</a>
     <a href="account.html">Account</a>
     <a href="saved.html">Saved</a>
@@ -162,6 +174,12 @@
     </div>
   </section>
 
+  <section class="shell" id="circle" style="padding: 10px 0 20px; border-bottom: 1px solid var(--ink-line);">
+    <div class="ix-circle-wrap" style="max-width: none;">
+      <div class="ix-stories" id="ixStoriesDx" style="border-bottom: none; padding-bottom: 4px;"><div class="ix-empty">Loading&hellip;</div></div>
+    </div>
+  </section>
+
   <section class="continue-strip shell" id="continueStrip" hidden>
     <div class="continue-inner">
       <span class="continue-label">Return to where the ink left off</span>
@@ -190,6 +208,10 @@
           <span class="tag">Epistolary</span>
           <span class="tag">Dark academia</span>
           <span class="tag is-wax">Annotated</span>
+        </div>
+        <div class="entry-progress" data-ms-num="ms014-ch19">
+          <div class="entry-progress-track"><div class="entry-progress-fill" style="width:0%"></div></div>
+          <div class="entry-progress-label">Not started</div>
         </div>
       </div>
       <div class="entry-margin">
@@ -254,13 +276,7 @@
         <div class="seal">MS</div>
       </div>
     </article>
-  </section>
 
-  <section class="catalog shell" id="margins" style="padding-top: 0;">
-    <div class="catalog-head">
-      <h2>From the margins</h2>
-      <span class="catalog-filter">short marks left by readers</span>
-    </div>
     <div id="marginsList"></div>
   </section>
 </main>
@@ -482,81 +498,6 @@
   }
   showMessagesIcon();
 
-  /* Reading streak — same computation as profile.html, shown on the homepage too */
-  function computeHeroStreak() {
-    var days = {};
-    try {
-      var bookmarks = JSON.parse(localStorage.getItem('marg:bookmarks') || '[]');
-      bookmarks.forEach(function (b) { if (b.ts) { days[new Date(b.ts).toDateString()] = true; } });
-    } catch (e) {}
-    try {
-      var hls = JSON.parse(localStorage.getItem('marg:hl:ms014-ch19') || '[]');
-      hls.forEach(function (h) {
-        var match = /hl_(\d+)_/.exec(h.id || '');
-        if (match) { days[new Date(parseInt(match[1], 10)).toDateString()] = true; }
-      });
-    } catch (e) {}
-
-    var dayList = Object.keys(days);
-    if (dayList.length === 0) { return 0; }
-
-    var today = new Date();
-    var streak = 0;
-    for (var i = 0; i < 365; i++) {
-      var d = new Date(today);
-      d.setDate(d.getDate() - i);
-      if (days[d.toDateString()]) {
-        streak++;
-      } else {
-        break;
-      }
-    }
-    return streak;
-  }
-
-  function renderHeroStreak() {
-    var n = computeHeroStreak();
-    if (n === 0) { return; }
-    document.getElementById('heroStreakN').textContent = n;
-    document.getElementById('heroStreakS').textContent = (n === 1 ? 'day streak' : 'day streak') + ' \u00B7 you marked something ' + (n === 1 ? 'today' : n + ' days running');
-    document.getElementById('heroStreak').hidden = false;
-  }
-  renderHeroStreak();
-
-  /* From the margins — reader-submitted short entries, shown under the static catalog */
-  function idxEscapeHtml(s) {
-    var d = document.createElement('div');
-    d.textContent = s;
-    return d.innerHTML;
-  }
-  function idxFormatDate(dateStr) {
-    var d = new Date(dateStr);
-    if (isNaN(d.getTime())) { return ''; }
-    var months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-    return months[d.getMonth()] + ' ' + d.getDate();
-  }
-  async function loadMargins() {
-    var wrap = document.getElementById('marginsList');
-    var result = await sb.from('posts').select('*').eq('post_type', 'margin').order('created_at', { ascending: false }).limit(8);
-    if (result.error || !result.data || result.data.length === 0) {
-      wrap.innerHTML = '<p style="color: var(--paper-dim); padding: 24px 0;">Nothing left in the margins yet.</p>';
-      return;
-    }
-    var html = '';
-    result.data.forEach(function (p) {
-      html += '<article class="entry">';
-      html += '<div class="entry-num">MARGIN<small>' + idxFormatDate(p.created_at) + '</small></div>';
-      html += '<div class="entry-main">';
-      html += '<a class="entry-title-link" href="profile.html?username=' + encodeURIComponent(p.author_username) + '"><h3 class="entry-title" style="font-size: 1.15rem;">' + idxEscapeHtml(p.title || p.content.slice(0, 60)) + '</h3></a>';
-      html += '<p class="entry-desc">' + idxEscapeHtml(p.content) + '</p>';
-      html += '</div>';
-      html += '<div class="entry-margin"><span class="entry-status">by ' + idxEscapeHtml(p.author_username) + '</span></div>';
-      html += '</article>';
-    });
-    wrap.innerHTML = html;
-  }
-  loadMargins();
-
   /* =============================================
      Mobile Stacks/Home feed
   ============================================= */
@@ -606,7 +547,7 @@
   }
 
   async function loadIxStories() {
-    var wrap = document.getElementById('ixStories');
+    var targets = [document.getElementById('ixStories'), document.getElementById('ixStoriesDx')].filter(Boolean);
     var result = await sb.from('posts').select('author_username, created_at').order('created_at', { ascending: false }).limit(30);
     var posts = result.data || [];
     var seen = {};
@@ -624,14 +565,15 @@
       html += '<a class="ix-story you" href="write.html"><div class="ix-story-ring"><div class="ix-story-cover">+</div></div><div class="ix-story-name">You</div></a>';
     }
     if (names.length === 0) {
-      wrap.innerHTML = html || '<div class="ix-empty">No recent activity yet.</div>';
+      var emptyHtml = html || '<div class="ix-empty">No recent activity yet.</div>';
+      targets.forEach(function (t) { t.innerHTML = emptyHtml; });
       return;
     }
     names.forEach(function (n) {
       var initial = n.charAt(0).toUpperCase();
       html += '<a class="ix-story" href="profile.html?username=' + encodeURIComponent(n) + '"><div class="ix-story-ring"><div class="ix-story-cover">' + ixEscapeHtml(initial) + '</div></div><div class="ix-story-name">' + ixEscapeHtml(n) + '</div></a>';
     });
-    wrap.innerHTML = html;
+    targets.forEach(function (t) { t.innerHTML = html; });
   }
 
   async function loadIxSub() {
@@ -674,25 +616,28 @@
   }
 
   async function renderIxPosts() {
-    var wrap = document.getElementById('ixPosts');
-    var label = document.getElementById('ixPostsLabel');
+    var wraps = [document.getElementById('ixPosts'), document.getElementById('ixPostsDx')].filter(Boolean);
+    var labels = [document.getElementById('ixPostsLabel'), document.getElementById('ixPostsLabelDx')].filter(Boolean);
+
+    function setAll(html) { wraps.forEach(function (w) { w.innerHTML = html; }); }
+    function setLabel(text) { labels.forEach(function (l) { l.textContent = text; }); }
 
     if (ixFilter === 'club') {
-      label.textContent = 'My club';
-      wrap.innerHTML = '<div class="ix-empty">Reading clubs aren\'t open yet &mdash; coming soon.</div>';
+      setLabel('My club');
+      setAll('<div class="ix-empty">Reading clubs aren\'t open yet &mdash; coming soon.</div>');
       return;
     }
 
     var items = ixAllPosts.slice();
     if (ixFilter === 'following') {
-      label.textContent = 'From people you follow';
+      setLabel('From people you follow');
       if (!ixCurrentUser) {
-        wrap.innerHTML = '<div class="ix-empty">Sign in and follow authors to see their posts here.</div>';
+        setAll('<div class="ix-empty">Sign in and follow authors to see their posts here.</div>');
         return;
       }
       items = items.filter(function (p) { return ixFollowingSet[p.author_username]; });
     } else {
-      label.textContent = 'Trending in the archive';
+      setLabel('Trending in the archive');
       var counts = {};
       for (var i = 0; i < items.length; i++) {
         counts[items[i].id] = await ixLikeCount(items[i].id);
@@ -701,7 +646,7 @@
     }
 
     if (items.length === 0) {
-      wrap.innerHTML = '<div class="ix-empty">Nothing here yet.</div>';
+      setAll('<div class="ix-empty">Nothing here yet.</div>');
       return;
     }
 
@@ -715,9 +660,12 @@
       html += '<div class="ix-post-actions">';
       html += '<button class="ix-action ix-like-btn" data-post-id="' + p.id + '"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2c1 3-2 4-2 7a4 4 0 008 0c0-1-.5-2-1-2 1.5 2 1 6-2 7.5-4 2-9-.5-9-5.5 0-4 3-5 3-9 1 0 2.5.5 3 2z"/></svg><span class="ix-like-count">0</span></button>';
       html += '<div class="ix-action"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M4 4h16v12H7l-3 3V4z"/></svg><span class="ix-comment-count">0</span></div>';
+      if (ixCurrentUser && ixCurrentUser.id === p.user_id) {
+        html += '<button class="ix-action ix-delete-btn" data-post-id="' + p.id + '" style="color: var(--wax);">Delete</button>';
+      }
       html += '</div></div>';
     }
-    wrap.innerHTML = html;
+    setAll(html);
 
     document.querySelectorAll('.ix-post[data-post-id]').forEach(function (el) {
       var pid = el.dataset.postId;
@@ -727,6 +675,18 @@
       ixCommentCount(pid).then(function (n) { commentSpan.textContent = n; });
       ixIsLiked(pid).then(function (liked) {
         if (liked) { el.querySelector('.ix-like-btn').classList.add('lit'); }
+      });
+    });
+
+    document.querySelectorAll('.ix-delete-btn').forEach(function (btn) {
+      btn.addEventListener('click', async function (e) {
+        e.stopPropagation();
+        if (!confirm('Delete this post? This cannot be undone.')) { return; }
+        var pid = this.dataset.postId;
+        var result = await sb.from('posts').delete().eq('id', pid);
+        if (result.error) { alert('Could not delete: ' + result.error.message); return; }
+        ixAllPosts = ixAllPosts.filter(function (p) { return String(p.id) !== String(pid); });
+        renderIxPosts();
       });
     });
 
@@ -751,12 +711,114 @@
 
   document.querySelectorAll('.ix-filter-pill').forEach(function (btn) {
     btn.addEventListener('click', function () {
-      document.querySelectorAll('.ix-filter-pill').forEach(function (b) { b.classList.remove('on'); });
-      this.classList.add('on');
-      ixFilter = this.dataset.filter;
+      var chosen = this.dataset.filter;
+      document.querySelectorAll('.ix-filter-pill').forEach(function (b) {
+        b.classList.toggle('on', b.dataset.filter === chosen);
+      });
+      ixFilter = chosen;
       renderIxPosts();
     });
   });
+
+  /* Reading streak — same logic already proven on profile.html */
+  function computeHeroStreak() {
+    var days = {};
+    try {
+      var bookmarks = JSON.parse(localStorage.getItem('marg:bookmarks') || '[]');
+      bookmarks.forEach(function (b) { if (b.ts) { days[new Date(b.ts).toDateString()] = true; } });
+    } catch (e) {}
+    try {
+      var hls = JSON.parse(localStorage.getItem('marg:hl:ms014-ch19') || '[]');
+      hls.forEach(function (h) {
+        var match = /hl_(\d+)_/.exec(h.id || '');
+        if (match) { days[new Date(parseInt(match[1], 10)).toDateString()] = true; }
+      });
+    } catch (e) {}
+    var dayList = Object.keys(days);
+    if (dayList.length === 0) { return 0; }
+    var today = new Date();
+    var streak = 0;
+    for (var i = 0; i < 365; i++) {
+      var d = new Date(today);
+      d.setDate(d.getDate() - i);
+      if (days[d.toDateString()]) { streak++; } else { break; }
+    }
+    return streak;
+  }
+  function renderHeroStreak() {
+    var n = computeHeroStreak();
+    if (n === 0) { return; }
+    document.getElementById('heroStreakN').textContent = n;
+    document.getElementById('heroStreakS').textContent = 'day streak \u00B7 you marked something ' + (n === 1 ? 'today' : n + ' days running');
+    document.getElementById('heroStreak').hidden = false;
+  }
+  renderHeroStreak();
+
+  /* Progress bars on the static catalog entries, using the same
+     localStorage progress data reader.js already tracks per manuscript */
+  function renderEntryProgress() {
+    document.querySelectorAll('.entry-progress[data-ms-num]').forEach(function (el) {
+      var pct = ixReadingProgress(el.dataset.msNum);
+      el.querySelector('.entry-progress-fill').style.width = pct + '%';
+      el.querySelector('.entry-progress-label').textContent = pct > 0 ? ('You\'re at ' + pct + '%') : 'Not started';
+    });
+  }
+  renderEntryProgress();
+
+  /* From the margins — reader-submitted short entries, shown under the static catalog */
+  async function loadMargins() {
+    var wrap = document.getElementById('marginsList');
+    var userResult = await sb.auth.getUser();
+    var me = userResult.data.user;
+    var result = await sb.from('posts').select('*').eq('post_type', 'margin').order('created_at', { ascending: false }).limit(12);
+    if (result.error || !result.data || result.data.length === 0) {
+      return;
+      return;
+    }
+    var html = '';
+    result.data.forEach(function (p) {
+      var msNum = String(p.id).padStart(3, '0');
+      var complete = !!p.is_complete;
+      var statusLine = p.entry_status && p.entry_status.trim() ? p.entry_status.trim() : (complete ? 'Complete' : 'Ongoing');
+      var tagList = (p.tags && p.tags.trim()) ? p.tags.split(',').map(function (t) { return t.trim(); }).filter(Boolean) : [];
+
+      html += '<article class="entry" data-post-id="' + p.id + '">';
+      html += '<div class="entry-num">MS.<br>' + msNum + '<small>' + (complete ? 'complete' : 'ongoing') + '</small></div>';
+      html += '<div class="entry-main">';
+      html += '<a class="entry-title-link" href="profile.html?username=' + encodeURIComponent(p.author_username) + '"><h3 class="entry-title">' + ixEscapeHtml(p.title || p.content.slice(0, 60)) + '</h3></a>';
+      html += '<p class="entry-desc">' + ixEscapeHtml(p.content) + '</p>';
+      if (tagList.length > 0) {
+        html += '<div class="entry-tags">';
+        tagList.forEach(function (t) { html += '<span class="tag">' + ixEscapeHtml(t) + '</span>'; });
+        html += '</div>';
+      }
+      html += '</div>';
+      html += '<div class="entry-margin">';
+      html += '<span class="entry-status' + (complete ? '' : ' is-ongoing') + '">' + ixEscapeHtml(statusLine) + '</span>';
+      if (complete) {
+        html += '<div class="seal">MS</div>';
+      }
+      html += '<span class="entry-status" style="margin-top: 6px; color: var(--dust);">by ' + ixEscapeHtml(p.author_username) + '</span>';
+      if (me && me.id === p.user_id) {
+        html += '<button class="rr-delete-btn" data-post-id="' + p.id + '" style="margin-top: 8px;">Delete</button>';
+      }
+      html += '</div>';
+      html += '</article>';
+    });
+    wrap.innerHTML = html;
+
+    document.querySelectorAll('#marginsList .rr-delete-btn').forEach(function (btn) {
+      btn.addEventListener('click', async function () {
+        if (!confirm('Delete this margin? This cannot be undone.')) { return; }
+        var pid = this.getAttribute('data-post-id');
+        var result2 = await sb.from('posts').delete().eq('id', pid);
+        if (result2.error) { alert('Could not delete: ' + result2.error.message); return; }
+        var article = this.closest('article');
+        if (article) { article.remove(); }
+      });
+    });
+  }
+  loadMargins();
 
   async function initIxHome() {
     var userResult = await sb.auth.getUser();

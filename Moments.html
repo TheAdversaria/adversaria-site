@@ -43,11 +43,7 @@
   <div class="shell">
     <a class="wordmark" href="index.html">The <span>Adversaria</span></a>
     <nav class="site-nav">
-      <a href="index.html">Archive</a>
-      <a href="feed.html">Reading Room</a>
       <a href="moments.html" class="is-active">Moments</a>
-      <a href="explore.html">Explore</a>
-      <a href="bookshelf.html">Bookshelf</a>
     </nav>
     <button class="menu-toggle-btn" id="menuToggleBtn">&#9776;</button>
     <div class="write-menu-wrap">
@@ -74,6 +70,7 @@
     <a href="bookshelf.html">Bookshelf</a>
     <a href="authors.html">Authors</a>
     <a href="write.html">Write</a>
+    <a href="profile.html">Profile</a>
     <a href="edit-profile.html">Edit Profile</a>
     <a href="account.html">Account</a>
     <a href="saved.html">Saved</a>
@@ -171,6 +168,9 @@
     out += '<button class="likeBtn" data-post-id="' + p.id + '" style="background: none; border: 1px solid var(--brass); color: var(--brass); padding: 4px 10px; border-radius: 4px; cursor: pointer;">&#9825; <span class="likeCount">0</span></button>';
     out += '<button class="saveBtn" data-post-id="' + p.id + '" style="background: none; border: 1px solid var(--brass); color: var(--brass); padding: 4px 10px; border-radius: 4px; cursor: pointer;">Save</button>';
     out += '<button class="toggleCommentsBtn" data-post-id="' + p.id + '" style="background: none; border: 1px solid var(--ink-line); color: var(--paper-dim); padding: 4px 10px; border-radius: 4px; cursor: pointer;">Comments</button>';
+    if (currentUser && currentUser.id === p.user_id) {
+      out += '<button class="deleteBtn rr-delete-btn" data-post-id="' + p.id + '">Delete</button>';
+    }
     out += '</div>';
     out += '<div class="commentsSection" data-post-id="' + p.id + '" style="display: none; margin-top: 12px;">';
     out += '<div class="commentsList" data-post-id="' + p.id + '"></div>';
@@ -207,6 +207,8 @@
 
   async function loadMoments() {
     var grid = document.getElementById('momentsGrid');
+    var userResult = await sb.auth.getUser();
+    currentUser = userResult.data.user;
     var result = await sb.from('posts').select('*').in('post_type', ['photo', 'reel']).order('created_at', { ascending: false });
     if (result.error) {
       grid.innerHTML = '<div class="mm-empty">Could not load Moments: ' + escapeHtml(result.error.message) + '</div>';
@@ -288,6 +290,20 @@
       btn.addEventListener('click', function () {
         if (!currentUser) { alert('Sign in to save posts.'); return; }
         toggleSave(this.getAttribute('data-post-id'), this, currentUser.id);
+      });
+    });
+    document.querySelectorAll('.deleteBtn').forEach(function (btn) {
+      btn.addEventListener('click', async function () {
+        if (!confirm('Delete this moment? This cannot be undone.')) { return; }
+        var pid = this.getAttribute('data-post-id');
+        var article = this.closest('article');
+        var result = await sb.from('posts').delete().eq('id', pid);
+        if (result.error) {
+          alert('Could not delete: ' + result.error.message);
+          return;
+        }
+        allMoments = allMoments.filter(function (p) { return String(p.id) !== String(pid); });
+        if (article) { article.remove(); }
       });
     });
     document.querySelectorAll('.toggleCommentsBtn').forEach(function (btn) {
