@@ -331,6 +331,18 @@
   <span><a href="index.html#correspondence">Leave a note in the margin</a></span>
 </footer>
 
+<!-- Story viewer -->
+<div class="modal-overlay" id="storyModalOverlay" hidden></div>
+<div class="story-modal" id="storyModal" hidden>
+  <button class="icon-btn" id="storyModalClose" aria-label="Close" style="position: absolute; top: 10px; right: 10px; z-index: 2;">&times;</button>
+  <img id="storyModalImage" src="" style="width: 100%; max-height: 50vh; object-fit: cover; display: none;">
+  <div style="padding: 20px;">
+    <div id="storyModalName" style="font-family: var(--display); font-style: italic; color: var(--brass); font-size: 1.05rem; margin-bottom: 10px;"></div>
+    <p id="storyModalContent" style="color: var(--paper); line-height: 1.6; white-space: pre-wrap; margin: 0;"></p>
+    <button id="storyModalDelete" class="rr-delete-btn" style="display: none; margin-top: 16px;">Delete</button>
+  </div>
+</div>
+
 <!-- Search -->
 <div class="modal-overlay" id="searchOverlay" hidden>
   <div class="search-modal" role="dialog" aria-modal="true" aria-label="Search the archive">
@@ -480,6 +492,18 @@
   document.getElementById('sideMenuClose').addEventListener('click', closeSideMenu);
   document.getElementById('sideMenuOverlay').addEventListener('click', closeSideMenu);
 
+  document.getElementById('storyModalClose').addEventListener('click', closeStoryModal);
+  document.getElementById('storyModalOverlay').addEventListener('click', closeStoryModal);
+  document.getElementById('storyModalDelete').addEventListener('click', async function () {
+    if (!confirm('Delete this story? This cannot be undone.')) { return; }
+    var pid = this.dataset.postId;
+    var result = await sb.from('posts').delete().eq('id', pid);
+    if (result.error) { alert('Could not delete: ' + result.error.message); return; }
+    window.ixStoriesData = (window.ixStoriesData || []).filter(function (p) { return String(p.id) !== String(pid); });
+    closeStoryModal();
+    loadIxStories();
+  });
+
   async function showMessagesIcon() {
     var result = await sb.auth.getUser();
     if (result.data.user) {
@@ -538,32 +562,65 @@
 
   async function loadIxStories() {
     var targets = [document.getElementById('ixStories'), document.getElementById('ixStoriesDx')].filter(Boolean);
-    var result = await sb.from('posts').select('author_username, created_at').order('created_at', { ascending: false }).limit(30);
+    var since = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
+    var result = await sb.from('posts').select('*').eq('post_type', 'story').gte('created_at', since).order('created_at', { ascending: false });
     var posts = result.data || [];
     var seen = {};
-    var names = [];
+    var stories = [];
     posts.forEach(function (p) {
       if (!seen[p.author_username]) {
         seen[p.author_username] = true;
-        names.push(p.author_username);
+        stories.push(p);
       }
     });
-    names = names.slice(0, 8);
+    stories = stories.slice(0, 8);
+    window.ixStoriesData = stories;
 
     var html = '';
     if (ixCurrentUser) {
-      html += '<a class="ix-story you" href="write.html"><div class="ix-story-ring"><div class="ix-story-cover">+</div></div><div class="ix-story-name">You</div></a>';
+      html += '<a class="ix-story you" href="write.html?type=story"><div class="ix-story-ring"><div class="ix-story-cover">+</div></div><div class="ix-story-name">You</div></a>';
     }
-    if (names.length === 0) {
+    if (stories.length === 0) {
       var emptyHtml = html || '<div class="ix-empty">No recent activity yet.</div>';
       targets.forEach(function (t) { t.innerHTML = emptyHtml; });
       return;
     }
-    names.forEach(function (n) {
+    stories.forEach(function (p) {
+      var n = p.author_username;
       var initial = n.charAt(0).toUpperCase();
-      html += '<a class="ix-story" href="profile.html?username=' + encodeURIComponent(n) + '"><div class="ix-story-ring"><div class="ix-story-cover">' + ixEscapeHtml(initial) + '</div></div><div class="ix-story-name">' + ixEscapeHtml(n) + '</div></a>';
+      html += '<button type="button" class="ix-story" data-post-id="' + p.id + '" style="background:none;border:none;cursor:pointer;"><div class="ix-story-ring"><div class="ix-story-cover">' + ixEscapeHtml(initial) + '</div></div><div class="ix-story-name">' + ixEscapeHtml(n) + '</div></button>';
     });
-    targets.forEach(function (t) { t.innerHTML = html; });
+    targets.forEach(function (t) {
+      t.innerHTML = html;
+      t.querySelectorAll('.ix-story[data-post-id]').forEach(function (btn) {
+        btn.addEventListener('click', function () { openStoryModal(this.dataset.postId); });
+      });
+    });
+  }
+
+  function openStoryModal(postId) {
+    var story = (window.ixStoriesData || []).find(function (p) { return String(p.id) === String(postId); });
+    if (!story) { return; }
+    var overlay = document.getElementById('storyModalOverlay');
+    var modal = document.getElementById('storyModal');
+    document.getElementById('storyModalName').textContent = story.author_username;
+    document.getElementById('storyModalContent').textContent = story.content;
+    var imgEl = document.getElementById('storyModalImage');
+    if (story.image_url) {
+      imgEl.src = story.image_url;
+      imgEl.style.display = 'block';
+    } else {
+      imgEl.style.display = 'none';
+    }
+    var delBtn = document.getElementById('storyModalDelete');
+    delBtn.style.display = (ixCurrentUser && ixCurrentUser.id === story.user_id) ? 'inline-block' : 'none';
+    delBtn.dataset.postId = story.id;
+    overlay.hidden = false;
+    modal.hidden = false;
+  }
+  function closeStoryModal() {
+    document.getElementById('storyModalOverlay').hidden = true;
+    document.getElementById('storyModal').hidden = true;
   }
 
   async function loadIxSub() {

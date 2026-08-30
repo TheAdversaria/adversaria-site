@@ -1553,3 +1553,20 @@ body.candle-on {
   border-color: var(--brass);
   font-weight: 600;
 }
+
+/* Story viewer modal */
+.story-modal {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: min(420px, 92vw);
+  max-height: 82vh;
+  overflow-y: auto;
+  background: var(--ink-raised);
+  border: 1px solid var(--ink-line);
+  border-radius: 10px;
+  z-index: 650;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+}
+.story-modal[hidden] { display: none; }

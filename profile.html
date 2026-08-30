@@ -167,6 +167,7 @@
       <div style="display: flex; gap: 10px; margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--ink-line);">
         <button id="postModalLikeBtn" style="background: none; border: 1px solid var(--brass); color: var(--brass); padding: 6px 14px; border-radius: 4px; cursor: pointer;">&#9825; <span id="postModalLikeCount">0</span></button>
         <button id="postModalSaveBtn" style="background: none; border: 1px solid var(--brass); color: var(--brass); padding: 6px 14px; border-radius: 4px; cursor: pointer;">Save</button>
+        <button id="postModalDeleteBtn" class="rr-delete-btn" style="display: none;">Delete</button>
       </div>
       <div style="margin-top: 18px;">
         <div id="postModalCommentsList"></div>
@@ -591,6 +592,10 @@
     document.getElementById('postModalTitle').textContent = post.title;
     document.getElementById('postModalContent').textContent = post.content;
 
+    var deleteBtn = document.getElementById('postModalDeleteBtn');
+    deleteBtn.style.display = (currentUser && currentUser.id === post.user_id) ? 'inline-block' : 'none';
+    deleteBtn.dataset.postId = post.id;
+
     refreshModalLikeCount(post.id);
     refreshModalSaveState(post.id);
     loadModalComments(post.id);
@@ -661,6 +666,20 @@
       await sb.from('saves').insert({ post_id: currentModalPostId, user_id: currentUser.id });
       btn.textContent = 'Saved';
     }
+  });
+
+  document.getElementById('postModalDeleteBtn').addEventListener('click', async function () {
+    if (!currentModalPostId) { return; }
+    if (!confirm('Delete this post? This cannot be undone.')) { return; }
+    var pid = currentModalPostId;
+    var result = await sb.from('posts').delete().eq('id', pid);
+    if (result.error) { alert('Could not delete: ' + result.error.message); return; }
+    loadedPosts = loadedPosts.filter(function (p) { return String(p.id) !== String(pid); });
+    if (pfSavedPosts) { pfSavedPosts = pfSavedPosts.filter(function (p) { return String(p.id) !== String(pid); }); }
+    closePostModal();
+    document.querySelectorAll('[data-post-id="' + pid + '"]').forEach(function (el) { el.remove(); });
+    var entriesStat = document.getElementById('statEntries');
+    if (entriesStat) { entriesStat.textContent = loadedPosts.length; }
   });
 
   document.getElementById('postModalCommentInput').addEventListener('keypress', async function (e) {
