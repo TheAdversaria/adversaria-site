@@ -1534,3 +1534,22 @@ body.candle-on {
 .streak-strip[hidden] { display: none; }
 .streak-n { font-family: var(--display); font-style: italic; color: var(--brass); font-size: 1.15rem; }
 .streak-s { color: var(--paper-dim); font-size: 0.82rem; }
+
+/* Type picker pills on the Write page */
+.type-pick-btn {
+  font-family: var(--body);
+  font-size: 0.82rem;
+  padding: 8px 16px;
+  border-radius: 18px;
+  border: 1px solid var(--ink-line);
+  background: none;
+  color: var(--paper-dim);
+  cursor: pointer;
+  transition: all .15s ease;
+}
+.type-pick-btn.on {
+  background: var(--brass);
+  color: var(--ink);
+  border-color: var(--brass);
+  font-weight: 600;
+}

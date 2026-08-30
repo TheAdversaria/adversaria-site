@@ -47,6 +47,13 @@
   <h1 id="writeHeading" style="font-family: var(--display); font-style: italic; color: var(--paper); font-size: 1.8rem;">Add to the archive</h1>
   <p id="writeSub" style="color: var(--paper-dim); font-size: 0.85rem; margin-top: -8px;"></p>
 
+  <div id="typePicker" style="display: flex; gap: 8px; flex-wrap: wrap; margin-top: 18px;">
+    <button type="button" class="type-pick-btn" data-type="margin">Margin</button>
+    <button type="button" class="type-pick-btn" data-type="verse">Verse</button>
+    <button type="button" class="type-pick-btn" data-type="photo">Photo</button>
+    <button type="button" class="type-pick-btn" data-type="reel">Reel</button>
+  </div>
+
   <div id="notSignedIn" style="margin-top: 20px; display: none;">
     <p style="color: var(--paper-dim);">You need to be signed in to write here.</p>
     <a href="account.html" style="color: var(--brass);">Go sign in &rarr;</a>
@@ -125,10 +132,22 @@
     reel:    { h: 'Post a reel',   s: 'Goes to Moments. Add a video link below.' }
   };
   document.getElementById('writeHeading').textContent = WRITE_COPY[postType].h;
-  document.getElementById('writeSub').textContent = WRITE_COPY[postType].s;
-  if (postType === 'margin') {
-    document.getElementById('marginFields').style.display = 'block';
+  function applyPostType(t) {
+    postType = t;
+    document.getElementById('writeHeading').textContent = WRITE_COPY[t].h;
+    document.getElementById('writeSub').textContent = WRITE_COPY[t].s;
+    document.getElementById('marginFields').style.display = (t === 'margin') ? 'block' : 'none';
+    document.querySelectorAll('.type-pick-btn').forEach(function (btn) {
+      btn.classList.toggle('on', btn.dataset.type === t);
+    });
+    history.replaceState(null, '', 'write.html?type=' + t);
   }
+
+  document.querySelectorAll('.type-pick-btn').forEach(function (btn) {
+    btn.addEventListener('click', function () { applyPostType(this.dataset.type); });
+  });
+
+  applyPostType(postType);
 
   async function checkAuth() {
     var notSignedIn = document.getElementById('notSignedIn');

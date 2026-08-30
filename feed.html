@@ -98,15 +98,6 @@
       <a href="feed.html" class="is-active">Reading Room</a>
     </nav>
     <button class="menu-toggle-btn" id="menuToggleBtn">&#9776;</button>
-    <div class="write-menu-wrap">
-      <button type="button" class="write-pill" id="writeMenuBtn">+ Write</button>
-      <div class="write-menu" id="writeMenu" hidden>
-        <a href="write.html?type=margin">Add a margin<small>appears on the Archive</small></a>
-        <a href="write.html?type=verse">Add a verse<small>appears in the Reading Room</small></a>
-        <a href="write.html?type=photo">Post a photo<small>appears in Moments</small></a>
-        <a href="write.html?type=reel">Post a reel<small>appears in Moments</small></a>
-      </div>
-    </div>
     <a class="icon-btn" href="messages.html" title="Messages" aria-label="Messages" id="messagesNavLink" style="display: none; margin-right: 8px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 2 11 13"/><path d="M22 2 15 22l-4-9-9-4z"/></svg><span class="icon-label">Messages</span></a>
     <span id="authStatus" style="color: var(--paper-dim); font-size: 0.85rem;"></span>
   </div>
@@ -181,6 +172,7 @@
     <div class="mo-modal-actions">
       <button id="moModalLike">&#9825; <span id="moModalLikeCount">0</span></button>
       <button id="moModalSave">Save</button>
+      <button id="moModalDelete" class="rr-delete-btn" style="display: none;">Delete</button>
     </div>
     <div class="mo-modal-comments">
       <div id="moModalCommentsList"></div>
@@ -453,6 +445,8 @@
     document.getElementById('moModalTitle').textContent = post.title;
     document.getElementById('moModalContent').textContent = post.content;
     refreshLikeCount(post.id, { querySelector: function () { return document.getElementById('moModalLikeCount'); } });
+    var delBtn = document.getElementById('moModalDelete');
+    delBtn.style.display = (currentUser && currentUser.id === post.user_id) ? 'inline-block' : 'none';
     document.getElementById('moModalOverlay').classList.add('is-open');
     loadMoComments(post.id);
   }
@@ -494,6 +488,19 @@
       await sb.from('saves').insert({ post_id: moCurrentPostId, user_id: currentUser.id });
       btn.textContent = 'Saved';
     }
+  });
+  document.getElementById('moModalDelete').addEventListener('click', async function () {
+    if (!currentUser || !moCurrentPostId) { return; }
+    if (!confirm('Delete this moment? This cannot be undone.')) { return; }
+    var result = await sb.from('posts').delete().eq('id', moCurrentPostId);
+    if (result.error) { alert('Could not delete: ' + result.error.message); return; }
+    moPosts = moPosts.filter(function (p) { return String(p.id) !== String(moCurrentPostId); });
+    document.getElementById('moModalOverlay').classList.remove('is-open');
+    var cell = document.querySelector('.mo-cell[data-post-id="' + moCurrentPostId + '"]');
+    if (cell) { cell.remove(); }
+    var reel = document.querySelector('.mo-reel-card[data-post-id="' + moCurrentPostId + '"]');
+    if (reel) { reel.remove(); }
+    moCurrentPostId = null;
   });
   document.getElementById('moModalCommentInput').addEventListener('keypress', async function (e) {
     if (e.key === 'Enter') {
